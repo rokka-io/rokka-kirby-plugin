@@ -2,8 +2,7 @@
 
 ## WARNING
 
-This is more a proof of concept, than something production ready. Use it at your own risk and extend it to make it very useful.
-
+This is still beta software. We will use this for our soon-to-be-online company webpage, so it's somehow battle tested. But there's still room for improvements. And input is always welcome.
 ## Requirements
 
 - [PHP 7.0](https://php.net) 
