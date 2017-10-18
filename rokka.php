@@ -105,6 +105,7 @@ kirby()->hook(['panel.file.upload', 'panel.file.replace'], function(Kirby\Panel\
 
 class Rokka {
 
+  const DEFAULT_TXT_LANG = 'en';
   public static  $previousImageKirbyTag = null;
 
   public static function panelUpload(Kirby\Panel\Models\File $file) {
@@ -154,7 +155,7 @@ class Rokka {
       ['meta_user' => ['kirby_location_on_upload' => dirname(parse_url($file->url(), PHP_URL_PATH))]]
     );
     $hash = $answer->getSourceImages()[0]->hash;
-    $file->update([Rokka::getRokkaHashKey() => $hash]);
+    $file->update([Rokka::getRokkaHashKey() => $hash], self::DEFAULT_TXT_LANG);
     return $hash;
   }
 
@@ -178,7 +179,7 @@ class Rokka {
 
   public static function getRokkaHash($file) {
     $var = self::getRokkaHashKey();
-    return $file->$var()->value();
+    return $file->$var()->value(self::DEFAULT_TXT_LANG);
   }
 
   public static function getRokkaHashKey() {
