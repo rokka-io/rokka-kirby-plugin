@@ -51,7 +51,7 @@ kirbytext::$tags['image'] = array(
     $stacks = c::get('plugin.rokka.stacks');
     $extension = $file->extension();
     $ext = null;
-    if ($extension == 'svg' || $extension == 'gif') {
+    if ($extension == 'svg') {
       $stack = $stacks['raw'];
       $ext = $extension;
     } else if ($width = $tag->attr('width')) {
@@ -264,7 +264,7 @@ class Rokka {
     }
     $stacks = c::get('plugin.rokka.stacks');
     $extension = $file->extension();
-    if ($extension == 'svg' || $extension == 'gif' ) {
+    if ($extension == 'svg') {
       $stack = $stacks['raw'];
       $format = $extension;
     } else if (isset($stacks["${operation}-${width}x${height}"])) {
