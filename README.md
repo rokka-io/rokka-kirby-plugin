@@ -106,6 +106,15 @@ c::set('plugin.rokka.stacks.options', [
 All available Stack options can be found on the [rokka documentation](https://rokka.io/documentation/references/stacks.html).
 
 
+## Retina images
+
+To be more documented. 
+
+Get html attribute snippets with 
+`Rokka::srcAttributes($url)`
+`Rokka::backgroundImageStyle($url)`
+for `srcset` enabled tags with retina resolutions.
+
 ### kirbytext
 
 This plugin overwrites the kirbytext `image` tag and serves pictures from rokka if that is used.
