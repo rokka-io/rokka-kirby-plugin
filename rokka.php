@@ -2,17 +2,23 @@
 
 use GuzzleHttp\Exception\GuzzleException;
 use Rokka\Client\Factory;
+use Rokka\Client\Image\SplFileInfo;
+use Rokka\Client\TemplateHelper;
 
 require(kirby()->roots()->index() . "/vendor/autoload.php");
 
+if (c::get('plugin.rokka.enabled')) {
+  include_once ("rokkacallbacks.php");
+    rokka::$rokka = new TemplateHelper(c::get('plugin.rokka.organization'), c::get('plugin.rokka.apikey'), new rokkacallbacks());
+}
 $kirby->set('widget', 'rokka-create-stacks', __DIR__ . '/widgets');
 $kirby->set('route', array(
   'pattern' => 'rokka-create-stacks',
   'action'  => function() {
-    Rokka::createStacks();
+    rokka::createStacks();
   }
 ));
-Rokka::$previousImageKirbyTag = Kirbytext::$tags['image'];
+rokka::$previousImageKirbyTag = Kirbytext::$tags['image'];
 kirbytext::$tags['image'] = array(
   'attr' => array(
     'stack',
@@ -35,7 +41,7 @@ kirbytext::$tags['image'] = array(
 
     //Fallback to original kirby image kirby tag, if rokka is not enabled
     if (!c::get('plugin.rokka.enabled')) {
-      return Rokka::$previousImageKirbyTag['html']($tag);
+      return rokka::$previousImageKirbyTag['html']($tag);
     }
 
     /** @var File $file */
@@ -43,7 +49,7 @@ kirbytext::$tags['image'] = array(
     if ($file == null) {
       if (url::isAbsolute($tag->attr()['image'])){
         //use kirby image tag impl, if we have an absolute url
-         return Rokka::$previousImageKirbyTag['html']($tag);
+         return rokka::$previousImageKirbyTag['html']($tag);
       } else {
         // don't return any image tag, if the file doesn't exist
         return "";
@@ -82,20 +88,20 @@ kirbytext::$tags['image'] = array(
       $file = null;
     }
 
-    //FIXME: We should use Rokka::$previousImageKirbyTag['html']($tag) and Rokka::getImgSrc($file, $stack, $ext) here to have things like links for images
+    //FIXME: We should use self::$previousImageKirbyTag['html']($tag) and self::getImgSrc($file, $stack, $ext) here to have things like links for images
     // but I didn't find an easy way to change the attributes of a $tag object. Will investigate further
-    return Rokka::getImgTag($file, $stack, $ext, $tag->attr());
+    return rokka::getImgTag($file, $stack, $ext, $tag->attr());
   }
 );
 
-$kirby->set('file::method', 'rokkaGetHash', 'Rokka::getRokkaHash');
+$kirby->set('file::method', 'rokkaGetHash', 'self::getRokkaHash');
 
 $kirby->set('file::method', 'rokkaCropUrl', function($file, $width, $height = 10000, $format = 'jpg') {
-return Rokka::getStackUrl('crop', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height-mode-fill--crop-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
+return rokka::getStackUrl('crop', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height-mode-fill--crop-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
 });
 
 $kirby->set('file::method', 'rokkaResizeUrl', function ($file, $width, $height = 10000, $format = 'jpg') {
-  return Rokka::getStackUrl('resize', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
+  return rokka::getStackUrl('resize', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
 });
 
 $kirby->set('file::method', 'rokkaOriginalSizeUrl', function ($file, $format = 'jpg') {
@@ -108,85 +114,60 @@ $kirby->set('file::method', 'rokkaOriginalSizeUrl', function ($file, $format = '
 
 $kirby->set('file::method', 'rokka',
   function ($file, $stack, $extension = null) {
-    return Rokka::getImgTag($file, $stack, $extension);
+    return rokka::getImgTag($file, $stack, $extension);
   });
 
 kirby()->hook(['panel.file.upload', 'panel.file.replace'], function(Kirby\Panel\Models\File $file) {
-  Rokka::panelUpload($file);
+    rokka::panelUpload($file);
 });
 
-class Rokka {
+class rokka {
 
   const DEFAULT_TXT_LANG = 'en';
-  public static  $previousImageKirbyTag = null;
+  public static $previousImageKirbyTag = null;
 
+  /**
+   * @var TemplateHelper
+   */
+  public static $rokka = null;
   public static function panelUpload(Kirby\Panel\Models\File $file) {
-    $file->update([Rokka::getRokkaHashKey() => ""]);
+    $file->update([self::getRokkaHashKey() => ""]);
   }
 
   public static function getSrcAttributes($url) {
-    $attrs = 'src="'.$url.'"';
-    $urlx2 = \Rokka\Client\UriHelper::addOptionsToUriString($url, 'options-dpr-2');
-    if ($urlx2 != $url) {
-      $attrs .= ' srcset="' . $urlx2 .' 2x"';
-    }
-    return $attrs;
+      return self::$rokka->getSrcAttributes($url);
   }
 
   public static function getBackgroundImageStyle($url) {
-    $style = "background-image:url('$url');";
-    $urlx2 = \Rokka\Client\UriHelper::addOptionsToUriString($url, 'options-dpr-2');
-    if ($urlx2 != $url) {
-      $style .= " background-image: -webkit-image-set(url('$url') 1x, url('$urlx2') 2x);";
-    }
-    return $style;
-  }
-
-  public static function getHashOrUpload(\File $file) {
-    if (!c::get('plugin.rokka.enabled')) {
-        return null;
-    }
-    if (!$hash = $file->rokkaGetHash()) {
-      $hash = Rokka::imageUpload($file);
-    }
-    return $hash;
-  }
-
-  public static function imageUpload(\File $file) {
-    if (!c::get('plugin.rokka.enabled')) {
-      return "";
-    }
-    if (!($file->extension() == 'svg' || strpos(F::mime($file->root()), "image/") === 0)) {
-     return "";
-    }
-    $imageClient = self::getRokkaClient();
-    $answer = $imageClient->uploadSourceImage(
-      $file->content(),
-      $file->safeName(),
-      '',
-      ['meta_user' => ['kirby_location_on_upload' => dirname(parse_url($file->url(), PHP_URL_PATH))]]
-    );
-    $hash = $answer->getSourceImages()[0]->shortHash;
-    $file->update([Rokka::getRokkaHashKey() => $hash], self::DEFAULT_TXT_LANG);
-    return $hash;
+      return self::$rokka->getBackgroundImageStyle($url);
   }
 
   public static function getImgTag(File $file = null, string $stack = null, string $extension = null, array $attr = null) {
-    $attr['src'] = self::getImgSrc($file, $stack, $extension, $attr);
+    $attr['src'] = self::$rokka->getImageUrl(self::getRokkaImageObject($file), $stack, $extension);
     unset($attr['image']);
     return html::img($attr['src'],$attr);
   }
 
-  public static function getImgSrc(File $file = null, string $stack = null, string $extension = null) {
-    if ($file == null) {
-      return "";
+  public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack) {
+    if (!c::get('plugin.rokka.enabled')) {
+      return $file->$operation($width, $height)->url();
     }
+    $rokkaImageObject = self::getRokkaImageObject($file);
 
-    if (!$hash = self::getHashOrUpload($file)) {
-      return "";
+    if (!$hash = self::$rokka->getHashOrUpload($rokkaImageObject)) {
+      return $file->$operation($width, $height)->url();
     }
-
-    return self::composeRokkaUrl($file, $stack, $hash, $extension);
+    $stacks = c::get('plugin.rokka.stacks');
+    $extension = $file->extension();
+    if ($extension == 'svg') {
+      $stack = $stacks['raw'];
+      $format = $extension;
+    } else if (isset($stacks["${operation}-${width}x${height}"])) {
+      $stack = $stacks["${operation}-${width}x${height}"];
+    } else {
+      $stack = $dynamicStack;
+    }
+    return self::$rokka->composeRokkaUrlWithImage($hash, $stack, $format, $rokkaImageObject);
   }
 
   public static function getRokkaHash($file) {
@@ -283,55 +264,13 @@ class Rokka {
   }
 
   /**
-   * @param File $file
-   * @param string $stack
-   * @param string $hash
-   * @param string $format
-   * @return string
-   */
-  public static function composeRokkaUrl(File $file, string $stack, string $hash, string $format = 'jpg'): string {
-    if ($format === null) {
-      $format = 'jpg';
-    }
-
-    return 'https://' . c::get('plugin.rokka.organization') . ".rokka.io/$stack/$hash/" . self::rokkaSafeSeoName($file) . ".$format";
-  }
-
-  public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack) {
-    if (!$hash = Rokka::getHashOrUpload($file)) {
-      return $file->$operation($width, $height)->url();
-    }
-    $stacks = c::get('plugin.rokka.stacks');
-    $extension = $file->extension();
-    if ($extension == 'svg') {
-      $stack = $stacks['raw'];
-      $format = $extension;
-    } else if (isset($stacks["${operation}-${width}x${height}"])) {
-      $stack = $stacks["${operation}-${width}x${height}"];
-    } else {
-      $stack = $dynamicStack;
-    }
-    return Rokka::composeRokkaUrl($file, $stack, $hash, $format);
-  }
-
-  /**
    * @return \Rokka\Client\Image
    */
   protected static function getRokkaClient(): \Rokka\Client\Image {
-    $organization = c::get('plugin.rokka.organization');
-    $apiKey = c::get('plugin.rokka.apikey');
-    $imageClient = Factory::getImageClient($organization, $apiKey, '');
-    return $imageClient;
+    return self::$rokka->getRokkaClient();
   }
 
-  /**
-   * @param File $file
-   * @return string
-   */
-  protected static function rokkaSafeSeoName(File $file): string {
-    $slug = str_replace(["@","."], "-", f::safeName($file->name()));
-    //remove all not allowed chars
-    return preg_replace('/[^0-9a-z-]/', '', $slug);
-
+  private static function getRokkaImageObject(File $file): SplFileInfo {
+    return new SplFileInfo(new \SplFileInfo($file->root()), null, $file);
   }
 }
