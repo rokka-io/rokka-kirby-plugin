@@ -291,6 +291,6 @@ class Rokka {
    * @return string
    */
   protected static function rokkaSafeSeoName(File $file): string {
-    return str_replace(".", "-", f::safeName($file->name()));
+    return str_replace(["@","."], "-", f::safeName($file->name()));
   }
 }
