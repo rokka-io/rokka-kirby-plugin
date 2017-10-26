@@ -60,7 +60,8 @@ The following is also recommended (see below in "Defining Stacks"):
 c::set('plugin.rokka.stacks', [
     'noop' => 'www_noop',
     'resize' => 'www_resize',
-    'raw' => 'www_raw'
+    'raw' => 'www_raw',
+    'kirbytext' => 'www_kirbytext' // default stack for kirbytext image includes
 ]);
 ```
 
@@ -103,8 +104,9 @@ You can also set stack options for those stacks with eg.
 
 ```
 c::set('plugin.rokka.stacks.options', [
-    'resize-300x300' => ['webp.quality' => 80], 
-    'crop-200x200' => ['jpg.quality' => 85] // small avatar images may profit from a little bit higher jpg quality
+    'resize-300x300' => ['options' => [webp.quality' => 80]], 
+    'crop-200x200' => ['options' => [jpg.quality' => 85]], 
+    'resize-800x10000' => [['resize' => ['upscale' => false, 'options' => [webp.quality' => 80]] // don't upscale picture, if there smaller than the width 
 ]);
 ```
 

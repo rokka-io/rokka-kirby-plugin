@@ -64,6 +64,8 @@ kirbytext::$tags['image'] = array(
       } else {
         $stack = "dynamic/$options--options-autoformat-true";
       }
+    } else if (isset($stacks['kirbytext'])) {
+      $stack = $stacks['kirbytext'];
     } else if (isset($stacks['noop'])) {
       $stack = $stacks['noop'];
     } else {
@@ -199,11 +201,17 @@ class Rokka {
     foreach ($stacks as $key => $rokkaStackName) {
       @list($name, $options) = explode("-",$key,2);
       print '<h2>Create stack named: '. $rokkaStackName .'</h2>';
+        if (!isset($stacksoptions[$key]['resize'])) {
+            $stacksoptions[$key]['resize'] = [];
+        }
+        if (!isset($stacksoptions[$key]['crop'])) {
+            $stacksoptions[$key]['crop'] = [];
+        }
       switch ($name) {
         case "crop":
         list($width,$height) = explode("x", $options);
-        $resize = new \Rokka\Client\Core\StackOperation('resize', ['width' => $width, 'height' => $height, 'mode' => 'fill']);
-        $crop = new \Rokka\Client\Core\StackOperation('crop', ['width' => $width, 'height' => $height]);
+        $resize = new \Rokka\Client\Core\StackOperation('resize', array_merge(['width' => $width, 'height' => $height, 'mode' => 'fill'], $stacksoptions[$key]['resize']));
+        $crop = new \Rokka\Client\Core\StackOperation('crop', array_merge(['width' => $width, 'height' => $height], $stacksoptions[$key]['crop']));
         $operations = [$resize, $crop];
         break;
         case "noop":
@@ -213,20 +221,23 @@ class Rokka {
         case "resize":
         if ($options) {
           list($width,$height) = explode("x", $options);
-          $resize = new \Rokka\Client\Core\StackOperation('resize', ['height' => $height, 'width' => $width]);
+          $resize = new \Rokka\Client\Core\StackOperation('resize', array_merge(['height' => $height, 'width' => $width], $stacksoptions[$key]['resize']));
         } else {
-          $resize = new \Rokka\Client\Core\StackOperation('resize', ['width' => 9999]);
+          $resize = new \Rokka\Client\Core\StackOperation('resize', array_merge(['width' => 9999], $stacksoptions[$key]['resize']));
         }
         $operations = [$resize];
         break;
+        default;
+            print "Nothing done, no rules for $key";
+            continue 2;
       }
       if ($name == "raw") {
         $stackoptions = ['source_file' => true];
       } else {
         $stackoptions = ['autoformat' => true, 'jpg.transparency.autoformat' => 'true'];
       }
-      if (isset($stacksoptions[$key])) {
-        $stackoptions = array_merge ($stackoptions, $stacksoptions[$key]);
+      if (isset($stacksoptions[$key]['options'])) {
+        $stackoptions = array_merge ($stackoptions, $stacksoptions[$key]['options']);
       }
       try {
         $resp = $imageClient->createStack("$rokkaStackName", $operations, '', $stackoptions, true);
