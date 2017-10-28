@@ -143,7 +143,7 @@ class rokka {
   }
 
   public static function getImgTag(File $file = null, string $stack = null, string $extension = null, array $attr = null) {
-    $attr['src'] = self::$rokka->getImageUrl(self::getRokkaImageObject($file), $stack, $extension);
+    $attr['src'] = self::$rokka->getStackUrl(self::getRokkaImageObject($file), $stack, $extension);
     unset($attr['image']);
     return html::img($attr['src'],$attr);
   }
