@@ -8,7 +8,10 @@ Free trials are available. Just install the plugin and use it.
 
 ## WARNING
 
-This is still beta software. We will use this for our soon-to-be-online company webpage, so it's somehow battle tested. But there's still room for improvements. And input is always welcome.
+This is still alpha software. We will use this for our soon-to-be-online company webpage, so it's somehow battle tested. 
+But there's still room for improvements and some APIs will soon change (see also the rokka-templatehandler branch). 
+And input is always welcome.
+
 ## Requirements
 
 - [PHP 7.0](https://php.net) 
