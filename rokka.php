@@ -1,8 +1,7 @@
 <?php
 
 use GuzzleHttp\Exception\GuzzleException;
-use Rokka\Client\Factory;
-use Rokka\Client\Image\SplFileInfo;
+use Rokka\Client\LocalImage\FileInfo;
 use Rokka\Client\TemplateHelper;
 
 require(kirby()->roots()->index() . "/vendor/autoload.php");
@@ -270,7 +269,7 @@ class rokka {
     return self::$rokka->getRokkaClient();
   }
 
-  private static function getRokkaImageObject(File $file): SplFileInfo {
-    return new SplFileInfo(new \SplFileInfo($file->root()), null, $file);
+  private static function getRokkaImageObject(File $file): FileInfo {
+    return new FileInfo(new \SplFileInfo($file->root()), null, $file);
   }
 }
