@@ -121,8 +121,8 @@ All available Stack options can be found on the [rokka documentation](https://ro
 To be more documented. 
 
 Get html attribute snippets with 
-`Rokka::srcAttributes($url)`
-`Rokka::backgroundImageStyle($url)`
+`Rokka::getSrcAttributes($url)`
+`Rokka::getBackgroundImageStyle($url)`
 for `srcset` enabled tags with retina resolutions.
 
 ### kirbytext

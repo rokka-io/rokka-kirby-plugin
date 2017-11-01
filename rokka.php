@@ -114,7 +114,7 @@ class Rokka {
     $file->update([Rokka::getRokkaHashKey() => ""]);
   }
 
-  public static function srcAttributes($url) {
+  public static function getSrcAttributes($url) {
     $attrs = 'src="'.$url.'"';
     $urlx2 = \Rokka\Client\UriHelper::addOptionsToUriString($url, 'options-dpr-2');
     if ($urlx2 != $url) {
@@ -123,7 +123,7 @@ class Rokka {
     return $attrs;
   }
 
-  public static function backgroundImageStyle($url) {
+  public static function getBackgroundImageStyle($url) {
     $style = "background-image:url('$url');";
     $urlx2 = \Rokka\Client\UriHelper::addOptionsToUriString($url, 'options-dpr-2');
     if ($urlx2 != $url) {
