@@ -1,15 +1,15 @@
 # Kirby Rokka
 
 [rokka](https://rokka.io) is digital image processing done right. Store, render and deliver images. Easy and blazingly fast.
-This plugin automatically uploads your pictures to rokka and delivers them in the right format, as light and fast as possible.
+This plugin automatically uploads your pictures to rokka and delivers them in the right format, as light and as fast as possible.
 And you only pay what you use, no upfront and fixed costs. 
 
-Free trials are available. Just install the plugin and use it.
+Free trials are available. Just install the plugin, register and use it.
 
 ## WARNING
 
-This is still alpha software. We will use this for our soon-to-be-online company webpage, so it's somehow battle tested. 
-But there's still room for improvements and some APIs will soon change (see also the rokka-templatehandler branch). 
+This is still alpha software. We  use this for our [Liip](https://liip.ch/) company webpage, so it's somehow battle tested. 
+But there's still room for improvements and some behind the scene code will change, the kirby API will stay stable, hopefully.
 And input is always welcome.
 
 ## Requirements
@@ -22,14 +22,11 @@ And input is always welcome.
 
 ### [Kirby CLI](https://github.com/getkirby/cli)
 
-FIXME: Not done yet ;)
-
 ```
 kirby plugin:install rokka-io/rokka-kirby-plugin
 ```
 
 ### Git Submodule
-
 
 ```
 $ git submodule add https://github.com/rokka-io/rokka-kirby-plugin.git site/plugins/rokka
@@ -64,7 +61,8 @@ c::set('plugin.rokka.stacks', [
     'noop' => 'www_noop',
     'resize' => 'www_resize',
     'raw' => 'www_raw',
-    'kirbytext' => 'www_kirbytext' // default stack for kirbytext image includes
+    'kirbytext' => 'www_kirbytext', // default stack for kirbytext image includes
+    'resize-800x10000' => 'www_kirbytext' //images in kirbytext will have a width of 800px
 ]);
 ```
 
@@ -86,8 +84,7 @@ There's also `$myFile->rokka($stackname, $extension)` (returning an html img tag
 
 ## Defining stacks
 
-Rokka has a concept of [stacks](https://rokka.io/documentation/references/stacks.html), which allow to have 
-nicer URLs.
+Rokka has a concept of [stacks](https://rokka.io/documentation/references/stacks.html), which allow to have  nicer URLs.
 
 You can configure some stacks with the `plugin.rokka.stacks` configure option. If you for example use certain sizes a lot, you should use a stack. For example, if you do `$myFile->rokkaCropUrl(200,200)` and `$myFile->rokkaResizeUrl(300,300)`, then define a stack with 
 
@@ -95,6 +92,7 @@ You can configure some stacks with the `plugin.rokka.stacks` configure option. I
 c::set('plugin.rokka.stacks', [
     `crop-200x200' => 'www_thumbnail',
     `resize-300x300' => 'www_resized',
+
 ```
 
 The value of the array (in this example www_thumbnail) can be an ascii text, you can use there whatever you want.
@@ -109,7 +107,7 @@ You can also set stack options for those stacks with eg.
 c::set('plugin.rokka.stacks.options', [
     'resize-300x300' => ['options' => [webp.quality' => 80]], 
     'crop-200x200' => ['options' => [jpg.quality' => 85]], 
-    'resize-800x10000' => [['resize' => ['upscale' => false, 'options' => [webp.quality' => 80]] // don't upscale picture, if there smaller than the width 
+    'resize-800x10000' => [['resize' => ['upscale' => false, 'options' => [webp.quality' => 80]] // don't upscale picture, if they're smaller than the width 
 ]);
 ```
 
