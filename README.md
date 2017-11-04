@@ -66,8 +66,8 @@ c::set('plugin.rokka.stacks', [
 ]);
 ```
 
-The plugin adds a `$myFile->rokkaCropUrl($width, $height, $format = "jpg")` and `
-$myFile->rokkaResizeUrl($width, $height, $format = "jpg")` function to [$file objects](https://getkirby.com/docs/cheatsheet#file).
+The plugin adds a `$myFile->rokkaCropUrl($width, $height, $format = "jpg")`, `
+$myFile->rokkaResizeUrl($width, $height, $format = "jpg")` and a `$myFile->rokkaOriginalSizeUrl($format="jpg")` function to [$file objects](https://getkirby.com/docs/cheatsheet#file).
 
 You can use them like the following in your templates:
 

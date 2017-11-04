@@ -96,6 +96,14 @@ $kirby->set('file::method', 'rokkaResizeUrl', function ($file, $width, $height =
   return Rokka::getStackUrl('resize', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
 });
 
+$kirby->set('file::method', 'rokkaOriginalSizeUrl', function ($file, $format = 'jpg') {
+    //FIXME: check for noop stack
+    if (!$hash = Rokka::getHashOrUpload($file)) {
+        return $file->url();
+    }
+    return Rokka::composeRokkaUrl($file, "dynamic/noop--options-autoformat-true-jpg.transparency.autoformat-true", $hash, $format);
+});
+
 $kirby->set('file::method', 'rokka',
   function ($file, $stack, $extension = null) {
     return Rokka::getImgTag($file, $stack, $extension);
