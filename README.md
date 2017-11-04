@@ -69,6 +69,7 @@ c::set('plugin.rokka.stacks', [
 The plugin adds a `$myFile->rokkaCropUrl($width, $height, $format = "jpg")` and `
 $myFile->rokkaResizeUrl($width, $height, $format = "jpg")` function to [$file objects](https://getkirby.com/docs/cheatsheet#file).
 
+You can use them like the following in your templates:
 
 ```php
 // get any image/file object
@@ -79,7 +80,7 @@ $url = $myFile->rokkaCropUrl(500,500);
 
 ```
 
-There's also `$myFile->rokka($stackname, $extension)` (returning an html img tag) and
+There's also `$myFile->rokka($stackname, $extension)` for returning an html img tag with using a stack and
 `$myFile->rokkaGetHash()` for getting the rokka hash of an image.
 
 ## Defining stacks
