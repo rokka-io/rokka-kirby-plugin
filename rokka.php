@@ -105,10 +105,15 @@ $kirby->set('file::method', 'rokkaResizeUrl', function ($file, $width, $height =
 
 $kirby->set('file::method', 'rokkaOriginalSizeUrl', function ($file, $format = 'jpg') {
     //FIXME: check for noop stack
-    if (!$hash = Rokka::getHashOrUpload($file)) {
+    if (!c::get('plugin.rokka.enabled')) {
         return $file->url();
     }
-    return Rokka::composeRokkaUrl($file, "dynamic/noop--options-autoformat-true-jpg.transparency.autoformat-true", $hash, $format);
+    $rokkaImageObject = self::getRokkaImageObject($file);
+
+    if (!$hash = rokka::$rokka->getHashMaybeUpload($rokkaImageObject)) {
+        return $file->url();
+    }
+    return rokka::$rokka->generateRokkaUrl($hash, "dynamic/noop--options-autoformat-true-jpg.transparency.autoformat-true", $format, self::$rokka->getImagename($rokkaImageObject));
 });
 
 $kirby->set('file::method', 'rokka',
