@@ -138,12 +138,12 @@ class rokka {
     $file->update([self::getRokkaHashKey() => ""]);
   }
 
-  public static function getSrcAttributes($url) {
-      return self::$rokka->getSrcAttributes($url);
+  public static function getSrcAttributes($url, $sizes = ['2x']) {
+      return self::$rokka->getSrcAttributes($url, $sizes);
   }
 
-  public static function getBackgroundImageStyle($url) {
-      return self::$rokka->getBackgroundImageStyle($url);
+  public static function getBackgroundImageStyle($url, $sizes = ['2x']) {
+      return self::$rokka->getBackgroundImageStyle($url, $sizes);
   }
 
   public static function getImgTag(File $file = null, string $stack = null, string $extension = null, array $attr = null) {
