@@ -10,7 +10,7 @@ class rokkacallbacks extends TemplateHelperCallbacksAbstract {
     return Rokka::getRokkaHash($image->getContext());
   }
 
-  public function saveHash(LocalImageAbstract $image, string $hash) {
+  public function saveHash(LocalImageAbstract $image, $hash) {
     $image->getContext()->update([rokka::getRokkaHashKey() => $hash], rokka::DEFAULT_TXT_LANG);
   }
   public function getMetadata(LocalImageAbstract $image): array {
