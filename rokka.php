@@ -164,7 +164,7 @@ class Rokka {
       '',
       ['meta_user' => ['kirby_location_on_upload' => dirname(parse_url($file->url(), PHP_URL_PATH))]]
     );
-    $hash = $answer->getSourceImages()[0]->hash;
+    $hash = $answer->getSourceImages()[0]->shortHash;
     $file->update([Rokka::getRokkaHashKey() => $hash], self::DEFAULT_TXT_LANG);
     return $hash;
   }
