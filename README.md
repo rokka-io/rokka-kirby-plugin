@@ -17,6 +17,7 @@ And input is always welcome.
 - [PHP 7.0](https://php.net) 
 - [**Kirby**](https://getkirby.com/) 2.5+ 
 - [Rokka API key](https://rokka.io/en/signup/) (trial available).
+- [Rokka PHP Client](https://github.com/rokka-io/rokka-client-php) 1.1+. Installed via composer, see below.
 
 ## Installation
 
