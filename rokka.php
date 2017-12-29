@@ -1,4 +1,6 @@
 <?php
+
+use GuzzleHttp\Exception\GuzzleException;
 use Rokka\Client\Factory;
 
 require(kirby()->roots()->index() . "/vendor/autoload.php");
@@ -206,6 +208,7 @@ class Rokka {
 
     $imageClient = self::getRokkaClient();
     print '<h1>Create stacks on rokka</h1>';
+    print '<h2>For organisation: ' . c::get('plugin.rokka.organization') . '</h2>';
     foreach ($stacks as $key => $rokkaStackName) {
       @list($name, $options) = explode("-",$key,2);
       print '<h2>Create stack named: '. $rokkaStackName .'</h2>';
@@ -247,18 +250,34 @@ class Rokka {
       if (isset($stacksoptions[$key]['options'])) {
         $stackoptions = array_merge ($stackoptions, $stacksoptions[$key]['options']);
       }
+      $startTime = (new \DateTime())->sub(new DateInterval("PT1S"));
       try {
-        $resp = $imageClient->createStack("$rokkaStackName", $operations, '', $stackoptions, true);
-      } catch (\Exception $e) {
+          $stack = new \Rokka\Client\Core\Stack('', $rokkaStackName);
+          $stack->setStackOperations($operations);
+          $stack->setStackOptions($stackoptions);
+          if (isset($stacksoptions[$key]['options-retina'])) {
+              $expr = new \Rokka\Client\Core\StackExpression("options.dpr > 1.5", $stacksoptions[$key]['options-retina']);
+              $stack->setStackExpressions([$expr]);
+          }
+          $resp = $imageClient->saveStack($stack, ['overwrite' => true]);
+      } catch (GuzzleException $e) {
         var_dump($e->getResponse()->getBody()->getContents());die;
       }
-
       print '<p>Done</p>';
       print '<p>Operations: ';
       print json_encode($resp->getStackOperations());
       print '</p>';
       print '<p>Options: ';
       print json_encode($resp->getStackOptions());
+      print '<p>Expressions: ';
+      print json_encode($resp->getStackExpressions());
+      print '</p>';
+      print '<p>';
+      if ($startTime <= $resp->getCreated()) {
+        print "Stack was updated.";
+      } else {
+        print "Stack didn't change.";
+      }
       print '</p>';
     }
   }

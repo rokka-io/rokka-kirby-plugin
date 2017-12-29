@@ -113,6 +113,14 @@ c::set('plugin.rokka.stacks.options', [
 ]);
 ```
 
+And if you want different settings for retina screens you can add an 'options-retina' key
+```
+c::set('plugin.rokka.stacks.options', [
+    'resize-300x300' => ['options' => [webp.quality' => 80], 'options-retina' => [webp.quality' => 60]], 
+]);
+```
+
+
 All available Stack options can be found on the [rokka documentation](https://rokka.io/documentation/references/stacks.html).
 
 
