@@ -51,7 +51,7 @@ In your `site/config.php` activate the plugin and set the [ROKKA API key](https:
 
 ```php
 c::set('plugin.rokka.enabled', true); 
-c::set('plugin.rokka.organisation', 'YOUR_ORG_NAME_HERE'); 
+c::set('plugin.rokka.organization', 'YOUR_ORG_NAME_HERE'); 
 c::set('plugin.rokka.apikey', 'YOUR_API_KEY_HERE');
 ```
 
