@@ -104,16 +104,7 @@ $kirby->set('file::method', 'rokkaResizeUrl', function ($file, $width, $height =
 });
 
 $kirby->set('file::method', 'rokkaOriginalSizeUrl', function ($file, $format = 'jpg') {
-    //FIXME: check for noop stack
-    if (!c::get('plugin.rokka.enabled')) {
-        return $file->url();
-    }
-    $rokkaImageObject = self::getRokkaImageObject($file);
-
-    if (!$hash = rokka::$rokka->getHashMaybeUpload($rokkaImageObject)) {
-        return $file->url();
-    }
-    return rokka::$rokka->generateRokkaUrl($hash, "dynamic/noop--options-autoformat-true-jpg.transparency.autoformat-true", $format, self::$rokka->getImagename($rokkaImageObject));
+  return rokka::getOriginalSizeUrl($file, $format);
 });
 
 $kirby->set('file::method', 'rokka',
@@ -125,7 +116,8 @@ kirby()->hook(['panel.file.upload', 'panel.file.replace'], function(Kirby\Panel\
     rokka::panelUpload($file);
 });
 
-class rokka {
+class rokka
+{
 
   const DEFAULT_TXT_LANG = 'en';
   public static $previousImageKirbyTag = null;
@@ -134,25 +126,36 @@ class rokka {
    * @var TemplateHelper
    */
   public static $rokka = null;
-  public static function panelUpload(Kirby\Panel\Models\File $file) {
+
+  public static function panelUpload(Kirby\Panel\Models\File $file)
+  {
     $file->update([self::getRokkaHashKey() => ""]);
   }
 
-  public static function getSrcAttributes($url, $sizes = ['2x']) {
-      return self::$rokka->getSrcAttributes($url, $sizes);
+  public static function getSrcAttributes($url, $sizes = ['2x'])
+  {
+    return self::$rokka->getSrcAttributes($url, $sizes);
   }
 
-  public static function getBackgroundImageStyle($url, $sizes = ['2x']) {
-      return self::$rokka->getBackgroundImageStyle($url, $sizes);
+  public static function getBackgroundImageStyle($url, $sizes = ['2x'])
+  {
+    return self::$rokka->getBackgroundImageStyle($url, $sizes);
   }
 
-  public static function getImgTag(File $file = null, string $stack = null, string $extension = null, array $attr = null) {
+  public static function getImgTag(
+    File $file = null,
+    string $stack = null,
+    string $extension = null,
+    array $attr = null
+  ) {
     $attr['src'] = self::$rokka->getStackUrl(self::getRokkaImageObject($file), $stack, $extension);
     unset($attr['image']);
-    return html::img($attr['src'],$attr);
+
+    return html::img($attr['src'], $attr);
   }
 
-  public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack) {
+  public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack)
+  {
     if (!c::get('plugin.rokka.enabled')) {
       return $file->$operation($width, $height)->url();
     }
@@ -166,16 +169,42 @@ class rokka {
     if ($extension == 'svg') {
       $stack = $stacks['raw'];
       $format = $extension;
-    } else if (isset($stacks["${operation}-${width}x${height}"])) {
-      $stack = $stacks["${operation}-${width}x${height}"];
     } else {
-      $stack = $dynamicStack;
+      if (isset($stacks["${operation}-${width}x${height}"])) {
+        $stack = $stacks["${operation}-${width}x${height}"];
+      } else {
+        $stack = $dynamicStack;
+      }
     }
+
     return self::$rokka->generateRokkaUrl($hash, $stack, $format, self::$rokka->getImagename($rokkaImageObject));
   }
 
-  public static function getRokkaHash($file) {
+  public static function getOriginalSizeUrl(File $file, $format = 'jpg')
+  {
+    //FIXME: check for noop stack
+    if (!c::get('plugin.rokka.enabled')) {
+      return $file->url();
+    }
+
+    $rokkaImageObject = self::getRokkaImageObject($file);
+
+    if (!$hash = self::$rokka->getHashMaybeUpload($rokkaImageObject)) {
+      return $file->url();
+    }
+
+    return rokka::$rokka->generateRokkaUrl(
+      $hash,
+      "dynamic/noop--options-autoformat-true-jpg.transparency.autoformat-true",
+      $format,
+      self::$rokka->getImagename($rokkaImageObject)
+    );
+  }
+
+  public static function getRokkaHash($file)
+  {
     $var = self::getRokkaHashKey();
+
     return $file->$var()->value(self::DEFAULT_TXT_LANG);
   }
 
