@@ -4,7 +4,7 @@
 This plugin automatically uploads your pictures to rokka and delivers them in the right format, as light and as fast as possible.
 And you only pay what you use, no upfront and fixed costs. 
 
-Free trials are available. Just install the plugin, register and use it.
+Free account plans are available. Just install the plugin, register and use it.
 
 ## WARNING
 
