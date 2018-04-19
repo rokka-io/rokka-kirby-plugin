@@ -1,6 +1,10 @@
+## 0.0.4 - 2018-04-19
+
+- Based on the new TemplateHelper classes of rokka/client 1.3.0
+
 ## 0.0.3
 
-- changed `srcAttributes` to `getSrcAttributes`  and `backgroundImageStyle` to `getBackgroundImageStyle`.
+- Changed `srcAttributes` to `getSrcAttributes`  and `backgroundImageStyle` to `getBackgroundImageStyle`.
 
 ## 0.0.2
 
