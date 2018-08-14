@@ -134,11 +134,17 @@ class rokka
 
   public static function getSrcAttributes($url, $sizes = ['2x'])
   {
+    if (!c::get('plugin.rokka.enabled')) {
+      return 'src="'.$url.'"';
+    }
     return self::$rokka->getSrcAttributes($url, $sizes);
   }
 
   public static function getBackgroundImageStyle($url, $sizes = ['2x'])
   {
+    if (!c::get('plugin.rokka.enabled')) {
+      return "background-image:url('$url');";
+    }
     return self::$rokka->getBackgroundImageStyle($url, $sizes);
   }
 
