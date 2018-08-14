@@ -87,9 +87,7 @@ kirbytext::$tags['image'] = array(
       $file = null;
     }
 
-    //FIXME: We should use self::$previousImageKirbyTag['html']($tag) and self::getImgSrc($file, $stack, $ext) here to have things like links for images
-    // but I didn't find an easy way to change the attributes of a $tag object. Will investigate further
-    return rokka::getImgTag($file, $stack, $ext, $tag->attr());
+    return rokka::getImgTag($file, $stack, $ext, $tag);
   }
 );
 
@@ -152,12 +150,16 @@ class rokka
     File $file = null,
     string $stack = null,
     string $extension = null,
-    array $attr = null
+    Kirbytag $tag = null
   ) {
-    $attr['src'] = self::$rokka->getStackUrl(self::getRokkaImageObject($file), $stack, $extension);
-    unset($attr['image']);
+    if ($tag === null) {
+      $tag = new Kirbytag(null, 'image', []);
+    }
+    $attr = $tag->attr();
 
-    return html::img($attr['src'], $attr);
+    $attr['image'] = self::$rokka->getStackUrl(self::getRokkaImageObject($file), $stack, $extension);
+    $tag = new Kirbytag($tag->kirbytext(), 'image', $attr);
+    return rokka::$previousImageKirbyTag['html']($tag);
   }
 
   public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack)
