@@ -1,3 +1,7 @@
+## 0.0.5 - 2018-08-14
+
+- The image: kirbytag while using this plugin now also honours caption and such attributes.
+
 ## 0.0.4 - 2018-04-19
 
 - Based on the new TemplateHelper classes of rokka/client 1.3.0
