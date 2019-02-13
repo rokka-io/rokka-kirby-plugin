@@ -2,6 +2,7 @@
 
 namespace Rokka\Kirby;
 
+use Kirby\Exception\LogicException;
 use Rokka\Client\Core\SourceImage;
 use Rokka\Client\LocalImage\AbstractLocalImage;
 use Rokka\Client\TemplateHelper\AbstractCallbacks;
@@ -17,7 +18,13 @@ class RokkaCallbacks extends AbstractCallbacks
 
   public function saveHash(AbstractLocalImage $file, SourceImage $sourceImage)
   {
-    $file->getContext()->update([Rokka::getRokkaHashKey() => $sourceImage->shortHash], Rokka::DEFAULT_TXT_LANG);
+    try {
+      $file->getContext()->update([Rokka::getRokkaHashKey() => $sourceImage->shortHash], Rokka::DEFAULT_TXT_LANG);
+    } catch (LogicException $e) {
+      // happens when for example an image can't be updated
+      // just return the shortHash
+      return $sourceImage->shortHash;
+    }
     return $sourceImage->shortHash;
   }
 

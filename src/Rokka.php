@@ -47,34 +47,18 @@ class Rokka
     KirbyTag $tag = null
   )
   {
-    $tag->value = self::getRokkaInstance()->getStackUrl(self::getRokkaImageObject($file), $stack, $extension);
-    return Rokka::$previousImageKirbyTag['html']($tag);
-  }
-
-  public static function getImgUrl(
-    File $file = null,
-    string $stack = null,
-    string $extension = null
-  )
-  {
     $rokkaImageObject = self::getRokkaImageObject($file);
-
     try {
       if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
-        file_put_contents("/tmp/foo.log", "rokka nohash: " . $hash . "\n", FILE_APPEND);
+        return Rokka::$previousImageKirbyTag['html']($tag);
 
-        return "fuck";
       }
     } catch (\Exception $e) {
-      file_put_contents("/tmp/foo.log", "rokka ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
-
-      return $file->mediaUrl();
+      return Rokka::$previousImageKirbyTag['html']($tag);
     }
-    file_put_contents("/tmp/foo.log", "rokka hash: " . $hash . "\n", FILE_APPEND);
-    $l = self::getRokkaInstance()->getStackUrl($rokkaImageObject, $stack, $extension);
-    file_put_contents("/tmp/foo.log", "rokka url: " . $l . "\n", FILE_APPEND);
-    return $l;
 
+    $tag->value = self::getRokkaInstance()->getStackUrl($rokkaImageObject, $stack, $extension);
+    return Rokka::$previousImageKirbyTag['html']($tag);
   }
 
   public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack)
@@ -231,9 +215,7 @@ class Rokka
   private static function getRokkaImageObject(File $file): FileInfo
   {
 
-    $f = new FileInfo(new \SplFileInfo($file->root()), null, $file);
-    file_put_contents("/tmp/foo.log", "rokka f: " . $f->getRealpath() . "\n", FILE_APPEND);
-    return $f;
+    return new FileInfo(new \SplFileInfo($file->root()), null, $file);
 
   }
 
