@@ -73,15 +73,14 @@ class Rokka
     $stacks = option('rokka.kirby.stacks');
     $extension = $file->extension();
     if ($extension == 'svg') {
-      $stack = $stacks['raw'];
       $format = $extension;
-    } else {
-      if (isset($stacks["${operation}-${width}x${height}"])) {
-        $stack = $stacks["${operation}-${width}x${height}"];
-      } else {
-        $stack = $dynamicStack;
-      }
     }
+    if (isset($stacks["${operation}-${width}x${height}"])) {
+      $stack = $stacks["${operation}-${width}x${height}"];
+    } else {
+      $stack = $dynamicStack;
+    }
+
 
     return self::getRokkaInstance()->generateRokkaUrl($hash, $stack, $format, self::getRokkaInstance()->getImagename($rokkaImageObject));
   }
