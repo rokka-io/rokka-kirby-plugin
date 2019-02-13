@@ -14,9 +14,9 @@ And input is always welcome.
 
 ## Requirements
 
-- [PHP 7.0](https://php.net) 
-- [**Kirby**](https://getkirby.com/) 2.5+ 
-- [Rokka API key](https://rokka.io/en/signup/) (trial available).
+- [PHP 7.1](https://php.net) 
+- [**Kirby**](https://getkirby.com/) 3.0+ 
+- [Rokka API key](https://rokka.io/en/signup/) (free plan available).
 - [Rokka PHP Client](https://github.com/rokka-io/rokka-client-php) 1.1+. Installed via composer, see below.
 
 ## Installation
@@ -50,15 +50,15 @@ composer require rokka/client
 In your `site/config.php` activate the plugin and set the [ROKKA API key](https://rokka.io/en/signup/) .
 
 ```php
-c::set('plugin.rokka.enabled', true); 
-c::set('plugin.rokka.organization', 'YOUR_ORG_NAME_HERE'); 
-c::set('plugin.rokka.apikey', 'YOUR_API_KEY_HERE');
+c::set('rokka.kirby.enabled', true); 
+c::set('rokka.kirby.organization', 'YOUR_ORG_NAME_HERE'); 
+c::set('rokka.kirby.apikey', 'YOUR_API_KEY_HERE');
 ```
 
 The following is also recommended (see below in "Defining Stacks"):
 
 ```
-c::set('plugin.rokka.stacks', [
+c::set('rokka.kirby.stacks', [
     'noop' => 'www_noop',
     'resize' => 'www_resize',
     'raw' => 'www_raw',
@@ -88,10 +88,10 @@ There's also `$myFile->rokka($stackname, $extension)` for returning an html img 
 
 Rokka has a concept of [stacks](https://rokka.io/documentation/references/stacks.html), which allow to have  nicer URLs.
 
-You can configure some stacks with the `plugin.rokka.stacks` configure option. If you for example use certain sizes a lot, you should use a stack. For example, if you do `$myFile->rokkaCropUrl(200,200)` and `$myFile->rokkaResizeUrl(300,300)`, then define a stack with 
+You can configure some stacks with the `rokka.kirby.stacks` configure option. If you for example use certain sizes a lot, you should use a stack. For example, if you do `$myFile->rokkaCropUrl(200,200)` and `$myFile->rokkaResizeUrl(300,300)`, then define a stack with 
 
 ```
-c::set('plugin.rokka.stacks', [
+c::set('rokka.kirby.stacks', [
     `crop-200x200' => 'www_thumbnail',
     `resize-300x300' => 'www_resized',
 
@@ -106,7 +106,7 @@ After you defined your stacks, go to your panel and click the "Create Rokka Stac
 You can also set stack options for those stacks with eg.
 
 ```
-c::set('plugin.rokka.stacks.options', [
+c::set('rokka.kirby.stacks.options', [
     'resize-300x300' => ['options' => [webp.quality' => 80]], 
     'crop-200x200' => ['options' => [jpg.quality' => 85]], 
     'resize-800x10000' => [['resize' => ['upscale' => false, 'options' => [webp.quality' => 80]] // don't upscale picture, if they're smaller than the width 
@@ -115,7 +115,7 @@ c::set('plugin.rokka.stacks.options', [
 
 And if you want different settings for retina screens you can add an 'options-retina' key
 ```
-c::set('plugin.rokka.stacks.options', [
+c::set('rokka.kirby.stacks.options', [
     'resize-300x300' => ['options' => [webp.quality' => 80], 'options-retina' => [webp.quality' => 60]], 
 ]);
 ```
