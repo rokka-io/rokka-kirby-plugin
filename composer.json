@@ -1,8 +1,9 @@
 {
   "name": "rokka/kirby",
-  "description": "Kirby Rokka Plugin",
+  "description": "Rokka plugin for Kirby CMS",
   "type": "kirby-plugin",
   "license": "MIT",
+  "homepage": "https://github.com/rokka-io/rokka-kirby-plugin",
   "authors": [
     {
       "name": "The rokka devs (https://rokka.io)",
@@ -23,5 +24,14 @@
   },
   "extra": {
     "installer-name": "rokka"
-  }
+  },
+  "keywords": [
+    "kirby3",
+    "kirby3-cms",
+    "kirby3-plugin",
+    "rokka",
+    "image",
+    "imagemanipulation",
+    "rokka.io"
+  ]
 }
