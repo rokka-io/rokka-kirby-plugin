@@ -21,29 +21,28 @@ And input is always welcome.
 
 ## Installation
 
-### [Kirby CLI](https://github.com/getkirby/cli)
+
+### Composer install
+
+The recommended way
 
 ```
-kirby plugin:install rokka-io/rokka-kirby-plugin
+composer require rokka/kirby:"dev-master as 0.1.0-dev"
 ```
+
 
 ### Git Submodule
 
 ```
-$ git submodule add https://github.com/rokka-io/rokka-kirby-plugin.git site/plugins/rokka
+git submodule add https://github.com/rokka-io/rokka-kirby-plugin.git site/plugins/rokka
+composer require rokka/client
 ```
 
 ### Copy and Paste
 
 1. [Download](https://github.com/rokka-io/rokka-kirby-plugin/archive/master.zip) the contents of this repository as ZIP-file.
 2. Rename the extracted folder to `rokka` and copy it into the `site/plugins/` directory in your Kirby project.
-
-### Composer install
-
-This is needed for all the libraries rokka needs. Do this in your kirby directory.
-```
-composer require rokka/client
-```
+3. `composer require rokka/client`
 
 ## Usage
 

@@ -1,3 +1,7 @@
+## 0.1.0 - unreleased
+
+- Adjusted for Kirby 3. Doesn't work for kirby 2 anymore, use the "kirby-2" branch, if you need this.
+
 ## 0.0.5 - 2018-08-14
 
 - The image: kirbytag while using this plugin now also honours caption and such attributes.
