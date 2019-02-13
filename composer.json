@@ -1,24 +1,27 @@
 {
-    "name": "getkirby/pluginkit",
-    "description": "Kirby Example Plugin",
-    "type": "kirby-plugin",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Your Name",
-            "email": "you@example.com"
-        }
-    ],
-    "require": {
-        "getkirby/composer-installer": "^1.1",
-        "rokka/client": "^1.9"
-    },
-    "autoload": {
-        "psr-4": {
-            "Rokka\\Kirby\\": "src/"
-        }
-    },
-    "config": {
-        "optimize-autoloader": true
+  "name": "rokka/kirby",
+  "description": "Kirby Rokka Plugin",
+  "type": "kirby-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "The rokka devs (https://rokka.io)",
+      "email": "rokka@rokka.io"
     }
+  ],
+  "require": {
+    "getkirby/composer-installer": "^1.1",
+    "rokka/client": "^1.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "Rokka\\Kirby\\": "src/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true
+  },
+  "extra": {
+    "installer-name": "rokka"
+  }
 }
