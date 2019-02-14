@@ -66,6 +66,16 @@ class Rokka
     if (!option('rokka.kirby.enabled')) {
       return $file->$operation($width, $height)->url();
     }
+
+    if ($height === null) {
+      $height = 10000;
+    }
+    if ($width === null) {
+      $width = 10000;
+    }
+    if ($format === null) {
+      $format = 'jpg';
+    }
     $rokkaImageObject = self::getRokkaImageObject($file);
     if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
       return $file->$operation($width, $height)->url();
@@ -115,6 +125,31 @@ class Rokka
   public static function getRokkaHashKey()
   {
     return "Rokkahash_" . str_replace("-", "_", option('rokka.kirby.organization'));
+  }
+
+  public static function getResizeUrl($file, $width, $height = null, $format = null)
+  {
+    return self::getStackUrl('resize', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
+  }
+
+  public static function getCropUrl($file, $width, $height = null, $format = null)
+  {
+    return Rokka::getStackUrl('crop', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height-mode-fill--crop-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
+  }
+
+  public static function getGrayscaleUrl($file, $format = null)
+  {
+    return Rokka::getStackUrl('grayscale', $file, null, null, $format, "dynamic/grayscale--options-autoformat-true-jpg.transparency.autoformat-true");
+  }
+
+  public static function getBlurUrl($file, $pixels, $format = null)
+  {
+    $stack = 'dynamic/blur';
+    if (is_numeric($pixels)) {
+      $stack .= '-sigma-' . $pixels;
+    }
+    $stack .= '--options-autoformat-true-jpg.transparency.autoformat-true';
+    return Rokka::getStackUrl('blur', $file, null, null, $format, $stack);
   }
 
   public static function createStacks($kirby)

@@ -1,16 +1,20 @@
 <?php
 
+use Kirby\Cms\App;
+use Kirby\Cms\File;
+use Kirby\Cms\FileVersion;
 use Kirby\Cms\KirbyTag;
 use Rokka\Kirby\Rokka;
 
 @include_once __DIR__ . '/vendor/autoload.php';
 
 Rokka::$previousImageKirbyTag = Kirby\Text\KirbyTag::$types['image'];
+
 Kirby::plugin(
   'rokka/kirby',
   [
     'options' => [
-      'enabled' => true,
+      'enabled' => false,
       'organization' => 'YOUR_ORG',
       'apikey' => 'YOUR_API_KEY',
 
@@ -22,15 +26,15 @@ Kirby::plugin(
           'action' => function () use ($kirby) {
             return Rokka::createStacks($kirby);
           },
-        ]
+        ],
       ];
     },
     'fileMethods' => [
       'rokkaCropUrl' => function ($width, $height = 10000, $format = 'jpg') {
-        return Rokka::getStackUrl('crop', $this, $width, $height, $format, "dynamic/resize-width-$width-height-$height-mode-fill--crop-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
+        return Rokka::getCropUrl($this, $width, $height, $format);
       },
       'rokkaResizeUrl' => function ($width, $height = 10000, $format = 'jpg') {
-        return Rokka::getStackUrl('resize', $this, $width, $height, $format, "dynamic/resize-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
+        return Rokka::getResizeUrl($this, $width, $height, $format);
       },
       'rokkaOriginalSizeUrl' => function ($format = 'jpg') {
         return Rokka::getOriginalSizeUrl($this, $format);
@@ -99,6 +103,40 @@ Kirby::plugin(
           return Rokka::getImgTag($file, $stack, $ext, $tag);
         },
       ],
+    ],
+
+    'components' => [
+      'file::version' => function (App $kirby, File $file, array $options) {
+        if (!Rokka::isEnabled()) {
+          // fallback to the default one
+          $components = include $kirby->root('kirby') . '/config/components.php';
+          return $components['file::version']($kirby, $file, $options);
+        }
+
+        $width = $options['width'] ?? null;
+        $height = $options['height'] ?? null;
+        $format = $options['format'] ?? $file->extension();
+
+        $format = strtolower($format);
+        if ($format !== 'png') {
+          $format = 'jpg';
+        }
+        if (isset($options['grayscale']) && $options['grayscale']) {
+          $url = Rokka::getGrayscaleUrl($file, $format);
+        } else if (isset($options['crop']) && $options['crop']) {
+          $url = Rokka::getCropUrl($file, $width, $height, $format);
+        } else if (isset($options['blur']) && $options['blur']) {
+          $url = Rokka::getBlurUrl($file, $options['blur'], $format);
+        } else {
+          $url = Rokka::getResizeUrl($file, $width, $height, $format);
+        }
+        return new FileVersion([
+          'modifications' => $options,
+          'original' => $file,
+          'root' => $file->root(),
+          'url' => $url,
+        ]);
+      },
     ],
   ]
 );

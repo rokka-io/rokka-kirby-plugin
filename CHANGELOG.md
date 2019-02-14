@@ -1,5 +1,6 @@
 ## 0.1.0 - unreleased
 
+- Thumb methods (crop(), resize(), blur() and bw()) use now rokka as well
 - Adjusted for Kirby 3. Doesn't work for kirby 2 anymore, use the "kirby-2" branch, if you need this.
 
 ## 0.0.5 - 2018-08-14
