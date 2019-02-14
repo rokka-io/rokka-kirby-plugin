@@ -117,11 +117,12 @@ class Rokka
     return "Rokkahash_" . str_replace("-", "_", option('rokka.kirby.organization'));
   }
 
-  public static function createStacks()
+  public static function createStacks($kirby)
   {
-    $logged_in_user = site()->user();
-    if (!$logged_in_user || !$logged_in_user->hasRole('admin')) {
+    $logged_in_user = $kirby->user();
+    if (!$logged_in_user || !$logged_in_user->role()->isAdmin()) {
       go('/');
+      return false;
     }
     $stacks = option('rokka.kirby.stacks');
     $stacksoptions = option('rokka.kirby.stacks.options');
@@ -170,7 +171,7 @@ class Rokka
       if (isset($stacksoptions[$key]['options'])) {
         $stackoptions = array_merge($stackoptions, $stacksoptions[$key]['options']);
       }
-      $startTime = (new \DateTime())->sub(new DateInterval("PT1S"));
+      $startTime = (new \DateTime())->sub(new \DateInterval("PT1S"));
       try {
         $stack = new \Rokka\Client\Core\Stack('', $rokkaStackName);
         $stack->setStackOperations($operations);
@@ -201,6 +202,7 @@ class Rokka
       }
       print '</p>';
     }
+    return '<p>finished</p>';
   }
 
   /**

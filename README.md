@@ -93,14 +93,20 @@ You can configure some stacks with the `rokka.kirby.stacks` configure option. If
 c::set('rokka.kirby.stacks', [
     `crop-200x200' => 'www_thumbnail',
     `resize-300x300' => 'www_resized',
+    'noop' => 'www_noop',
+    'resize' => 'www_resize',
+    'raw' => 'www_raw',
 
 ```
 
 The value of the array (in this example www_thumbnail) can be an ascii text, you can use there whatever you want.
 
-The `noop`, `resize` and `raw` keys have a special meaning, especially if you want to use SVG files, you should set the `raw` key.
+The `noop`, `resize` and `raw` keys have a special meaning and you should define them like in the example above, 
+but you can change the name of the actual stacks
 
-After you defined your stacks, go to your panel and click the "Create Rokka Stacks" links on the box on the right side, this will create your stacks on the Rokka server.
+
+After you defined your stacks, open the URL https://yourkirbysite.com/_rokka/create-stacks, after you logged in into the Panel.
+This will create your stacks on the Rokka server. A panel option for this will come one day.
 
 You can also set stack options for those stacks with eg.
 
@@ -118,6 +124,7 @@ c::set('rokka.kirby.stacks.options', [
     'resize-300x300' => ['options' => [webp.quality' => 80], 'options-retina' => [webp.quality' => 60]], 
 ]);
 ```
+
 
 
 All available Stack options can be found on the [rokka documentation](https://rokka.io/documentation/references/stacks.html).
