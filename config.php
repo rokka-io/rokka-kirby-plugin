@@ -4,11 +4,7 @@ use Kirby\Cms\App;
 use Kirby\Cms\File;
 use Kirby\Cms\FileVersion;
 use Kirby\Cms\KirbyTag;
-use Rokka\Kirby\Rokka;
 
-@include_once __DIR__ . '/vendor/autoload.php';
-
-Rokka::$previousImageKirbyTag = Kirby\Text\KirbyTag::$types['image'];
 
 Kirby::plugin(
   'rokka/kirby',
@@ -48,21 +44,34 @@ Kirby::plugin(
     ],
     'tags' => [
       'image' => [
-        'attr' => array_merge(
-          ['stack', 'format'],
-          Rokka::$previousImageKirbyTag['attr']
-        ),
+        'attr' => [
+          'stack',
+          'format',
+          //from here on, these are the default attr from kirby/config/tags.php for images
+          'alt',
+          'caption',
+          'class',
+          'height',
+          'imgclass',
+          'link',
+          'linkclass',
+          'rel',
+          'target',
+          'text',
+          'title',
+          'width'
+        ],
         'html' => function (KirbyTag $tag) {
           //Fallback to original kirby image kirby tag, if rokka is not enabled
           if (!Rokka::isEnabled()) {
-            return Rokka::$previousImageKirbyTag['html']($tag);
+            return Rokka::getPreviousImageKirbyTag()['html']($tag);
           }
 
           $file = $tag->file($tag->attr('image'));
           if ($file == null) {
             if (url::isAbsolute($tag->attr('image'))) {
               //use kirby image tag impl, if we have an absolute url
-              return Rokka::$previousImageKirbyTag['html']($tag);
+              return Rokka::getPreviousImageKirbyTag()['html']($tag);
             } else {
               // don't return any image tag, if the file doesn't exist
               return "";

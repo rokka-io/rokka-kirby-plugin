@@ -11,13 +11,14 @@
     }
   ],
   "require": {
-    "getkirby/composer-installer": "^1.1",
     "rokka/client": "^1.9"
   },
   "autoload": {
     "psr-4": {
-      "Rokka\\Kirby\\": "src/"
-    }
+      "Rokka\\Kirby\\": "src/Kirby"
+    },
+    "classmap": ["src/Rokka.php"],
+    "files": ["config.php"]
   },
   "config": {
     "optimize-autoloader": true

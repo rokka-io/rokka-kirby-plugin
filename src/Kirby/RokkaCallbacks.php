@@ -3,6 +3,7 @@
 namespace Rokka\Kirby;
 
 use Kirby\Exception\LogicException;
+use Rokka;
 use Rokka\Client\Core\SourceImage;
 use Rokka\Client\LocalImage\AbstractLocalImage;
 use Rokka\Client\TemplateHelper\AbstractCallbacks;

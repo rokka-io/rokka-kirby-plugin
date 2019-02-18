@@ -1,6 +1,5 @@
 <?php
 
-namespace Rokka\Kirby;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Kirby\Cms\File;
@@ -50,15 +49,15 @@ class Rokka
     $rokkaImageObject = self::getRokkaImageObject($file);
     try {
       if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
-        return Rokka::$previousImageKirbyTag['html']($tag);
+        return self::getPreviousImageKirbyTag()['html']($tag);
 
       }
     } catch (\Exception $e) {
-      return Rokka::$previousImageKirbyTag['html']($tag);
+      return self::getPreviousImageKirbyTag()['html']($tag);
     }
 
     $tag->value = self::getRokkaInstance()->getStackUrl($rokkaImageObject, $stack, $extension);
-    return Rokka::$previousImageKirbyTag['html']($tag);
+    return self::getPreviousImageKirbyTag()['html']($tag);
   }
 
   public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack)
@@ -134,12 +133,12 @@ class Rokka
 
   public static function getCropUrl($file, $width, $height = null, $format = null)
   {
-    return Rokka::getStackUrl('crop', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height-mode-fill--crop-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
+    return self::getStackUrl('crop', $file, $width, $height, $format, "dynamic/resize-width-$width-height-$height-mode-fill--crop-width-$width-height-$height--options-autoformat-true-jpg.transparency.autoformat-true");
   }
 
   public static function getGrayscaleUrl($file, $format = null)
   {
-    return Rokka::getStackUrl('grayscale', $file, null, null, $format, "dynamic/grayscale--options-autoformat-true-jpg.transparency.autoformat-true");
+    return self::getStackUrl('grayscale', $file, null, null, $format, "dynamic/grayscale--options-autoformat-true-jpg.transparency.autoformat-true");
   }
 
   public static function getBlurUrl($file, $pixels, $format = null)
@@ -149,7 +148,7 @@ class Rokka
       $stack .= '-sigma-' . $pixels;
     }
     $stack .= '--options-autoformat-true-jpg.transparency.autoformat-true';
-    return Rokka::getStackUrl('blur', $file, null, null, $format, $stack);
+    return self::getStackUrl('blur', $file, null, null, $format, $stack);
   }
 
   public static function createStacks($kirby)
@@ -266,5 +265,13 @@ class Rokka
   public static function isEnabled()
   {
     return option('rokka.kirby.enabled');
+  }
+
+  public static function getPreviousImageKirbyTag(): array
+  {
+    if (self::$previousImageKirbyTag === null) {
+      self::$previousImageKirbyTag = Kirby\Text\KirbyTag::$types['image'];
+    }
+    return self::$previousImageKirbyTag;
   }
 }
