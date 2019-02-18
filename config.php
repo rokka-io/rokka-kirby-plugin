@@ -43,7 +43,7 @@ Kirby::plugin(
       },
     ],
     'tags' => [
-      'image' => [
+      'imageRokka' => [
         'attr' => [
           'stack',
           'format',
@@ -64,14 +64,14 @@ Kirby::plugin(
         'html' => function (KirbyTag $tag) {
           //Fallback to original kirby image kirby tag, if rokka is not enabled
           if (!Rokka::isEnabled()) {
-            return Rokka::getPreviousImageKirbyTag()['html']($tag);
+            return Rokka::getOriginalImageTag()['html']($tag);
           }
 
-          $file = $tag->file($tag->attr('image'));
+          $file = $tag->file($tag->attr('imageRokka'));
           if ($file == null) {
-            if (url::isAbsolute($tag->attr('image'))) {
+            if (url::isAbsolute($tag->attr('imageRokka'))) {
               //use kirby image tag impl, if we have an absolute url
-              return Rokka::getPreviousImageKirbyTag()['html']($tag);
+              return Rokka::getOriginalImageTag()['html']($tag);
             } else {
               // don't return any image tag, if the file doesn't exist
               return "";
@@ -113,7 +113,18 @@ Kirby::plugin(
         },
       ],
     ],
-
+    'hooks' => [
+      'kirbytags:before' => function ($text, $data, $options) {
+        // replace all (image: with (imageRokka:
+        if (Rokka::isEnabled()) {
+          // regex taken from \Kirby\Text\KirbyTags::parse
+          return preg_replace_callback('!(?=[^\]])\(image:(.*?\))!is', function ($match) {
+            return '(imageRokka:' . $match[1];
+          }, $text);
+        }
+        return $text;
+      },
+    ],
     'components' => [
       'file::version' => function (App $kirby, File $file, array $options) {
         if (!Rokka::isEnabled()) {

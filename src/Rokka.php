@@ -49,15 +49,15 @@ class Rokka
     $rokkaImageObject = self::getRokkaImageObject($file);
     try {
       if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
-        return self::getPreviousImageKirbyTag()['html']($tag);
+        return self::getOriginalImageTag()['html']($tag);
 
       }
     } catch (\Exception $e) {
-      return self::getPreviousImageKirbyTag()['html']($tag);
+      return self::getOriginalImageTag()['html']($tag);
     }
 
     $tag->value = self::getRokkaInstance()->getStackUrl($rokkaImageObject, $stack, $extension);
-    return self::getPreviousImageKirbyTag()['html']($tag);
+    return self::getOriginalImageTag()['html']($tag);
   }
 
   public static function getStackUrl(string $operation, File $file, $width, $height, $format, $dynamicStack)
@@ -267,11 +267,8 @@ class Rokka
     return option('rokka.kirby.enabled');
   }
 
-  public static function getPreviousImageKirbyTag(): array
+  public static function getOriginalImageTag(): array
   {
-    if (self::$previousImageKirbyTag === null) {
-      self::$previousImageKirbyTag = Kirby\Text\KirbyTag::$types['image'];
-    }
-    return self::$previousImageKirbyTag;
+    return Kirby\Text\KirbyTag::$types['image'];
   }
 }
