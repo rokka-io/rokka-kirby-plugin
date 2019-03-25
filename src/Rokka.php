@@ -257,7 +257,11 @@ class Rokka
   private static function getRokkaInstance(): TemplateHelper
   {
     if (self::$rokka === null) {
-      self::$rokka = new TemplateHelper(option('rokka.kirby.organization'), option('rokka.kirby.apikey'), new \Rokka\Kirby\RokkaCallbacks());
+      self::$rokka = new TemplateHelper(
+        option('rokka.kirby.organization'),
+        option('rokka.kirby.apikey'),
+        new \Rokka\Kirby\RokkaCallbacks()
+      );
     }
     return self::$rokka;
   }
