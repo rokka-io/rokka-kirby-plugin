@@ -12,6 +12,78 @@ class Rokka
   const DEFAULT_TXT_LANG = 'en';
   public static $previousImageKirbyTag = null;
 
+  // mainly copied from https://rokka.io/documentation/guides/best-practices-for-stack-configurations.html  for maximum flexibility and small urls
+  private const DEFAULT_RESIZE_STACK = [
+    'operations' => [
+      'resize' => [
+        'expressions' => [
+          'width' => '$finalWidth',
+          'height' => '$finalHeight'
+        ],
+      ]
+    ],
+    'variables' => [
+      'defaultWidth' => '(image.width)', // will be overwritten if width is explicitely set
+      'defaultHeight' => '(image.height)', // will be overwritten if width is explicitely set
+      'w' => 0,
+      'h' => 0,
+      'r' => '$defaultHeight > 0 ? ($defaultWidth / $defaultHeight) : (image.width / image.height)', // this is all a little overkill for just resize, but it works for all use cases (just h set, just w set, both not set, etc)
+      'finalWidth' => '$w == 0 ? ($h == 0 ? $defaultWidth : ($h * $r)) : $w',
+      'finalHeight' => '$h == 0 ? $finalWidth / $r : $h',
+    ],
+    'options' => self::DEFAULT_BASE_STACK['options'],
+    'expressions' => self::DEFAULT_BASE_STACK['expressions']
+
+  ];
+
+  // copied from https://rokka.io/documentation/guides/best-practices-for-stack-configurations.html for maximum flexibility and small urls
+  private const DEFAULT_CROP_STACK = [
+    'operations' => [
+      'resize' => [
+        'options' => [
+          'mode' => 'fill'
+        ],
+        'expressions' => [
+          'width' => '$finalWidth',
+          'height' => '$finalHeight'
+        ],
+      ],
+      'crop' => [
+        'expressions' => [
+          'width' => '$finalWidth',
+          'height' => '$finalHeight'
+        ],
+      ],
+    ],
+    'variables' => [
+      'defaultWidth' => '$w == 0 ? (image.width) : $w', // will be overwritten if width is explicitely set
+      'defaultHeight' => '$h == 0 ? (image.height) : $h', // will be overwritten if width is explicitely set
+      'w' => 0,
+      'h' => 0,
+      "r" => '$defaultWidth / $defaultHeight',
+      'finalWidth' => '$w == 0 ? ($h == 0 ? $defaultWidth : ($h * $r)) : $w',
+      'finalHeight' => '$h == 0 ? $finalWidth / $r : $h',
+    ],
+    'options' => self::DEFAULT_BASE_STACK['options'],
+    'expressions' => self::DEFAULT_BASE_STACK['expressions']
+
+  ];
+
+  private const DEFAULT_BASE_STACK = [
+    'options' => [
+      'autoformat' => true,
+      'jpg.transparency.autoformat' => true,
+    ],
+    'expressions' => [[
+      "expression" => "options.dpr >= 2",
+      "overrides" => [
+        "options" => [
+          "optim.quality" => 2,
+        ],
+      ],
+    ]],
+  ];
+
   /**
    * @var TemplateHelper
    */
@@ -87,7 +159,28 @@ class Rokka
     if (isset($stacks["${operation}-${width}x${height}"])) {
       $stack = $stacks["${operation}-${width}x${height}"];
     } else {
-      $stack = $dynamicStack;
+      // check if we have a stack configuration for this variable with w setting, then we can use the shorter URLs.
+      $config = self::getStackConfiguration($operation, $operation);
+      if (isset($config['variables']['w'])) {
+        $stack = $stacks[$operation];
+        $variables = [];
+        if ($width < 10000) {
+          $variables['w'] = $width;
+        }
+        if ($height < 10000) {
+          $variables['h'] = $height;
+        }
+        if (count($variables) > 0) {
+          $stack .= '/v';
+          foreach ($variables as $_k => $_v) {
+            $stack .= '-' . $_k . '-' . $_v;
+          }
+
+        }
+      } else {
+        // otherwise just use the dynamic stack config
+        $stack = $dynamicStack;
+      }
     }
 
 
@@ -107,7 +200,7 @@ class Rokka
       return $file->url();
     }
 
-    return index::$rokka->generateRokkaUrl(
+    return self::$rokka->generateRokkaUrl(
       $hash,
       "dynamic/noop--options-autoformat-true-jpg.transparency.autoformat-true",
       $format,
@@ -160,62 +253,122 @@ class Rokka
     }
     $stacks = option('rokka.kirby.stacks');
     $stacksoptions = option('rokka.kirby.stacks.options');
-
     $imageClient = self::getRokkaClient();
     print '<h1>Create stacks on rokka</h1>';
     print '<h2>For organisation: ' . option('rokka.kirby.organization') . '</h2>';
     foreach ($stacks as $key => $rokkaStackName) {
       @list($name, $options) = explode("-", $key, 2);
       print '<h2>Create stack named: ' . $rokkaStackName . '</h2>';
-      if (!isset($stacksoptions[$key]['resize'])) {
-        $stacksoptions[$key]['resize'] = [];
+      if (!isset($stacksoptions[$key]['operations']['resize'])) {
+        $stacksoptions[$key]['operations']['resize'] = [];
       }
-      if (!isset($stacksoptions[$key]['crop'])) {
-        $stacksoptions[$key]['crop'] = [];
+      if (isset($stacksoptions[$key]['resize'])) {
+        print "<h3>ERROR, please change config for '$key'</h3>";
+        print "<p> The config for individual resize options in rokka.stack.options changed, please move the 'resize' key to 'operations' => 'resize' => 'options'</p>";
+        $newOptions = $stacksoptions[$key];
+        unset($newOptions['resize']);
+        $newOptions['operations']['resize']['options'] = $stacksoptions[$key]['resize'];
+        print "<pre>'". $key ."' => ".var_export($newOptions,true) ."</pre>";
+        die;
+
       }
+
+      $stackConfig = self::DEFAULT_BASE_STACK;
       switch ($name) {
         case "crop":
-          list($width, $height) = explode("x", $options);
-          $resize = new \Rokka\Client\Core\StackOperation('resize', array_merge(['width' => $width, 'height' => $height, 'mode' => 'fill'], $stacksoptions[$key]['resize']));
-          $crop = new \Rokka\Client\Core\StackOperation('crop', array_merge(['width' => $width, 'height' => $height], $stacksoptions[$key]['crop']));
-          $operations = [$resize, $crop];
+          $stackConfig = self::getStackConfiguration('crop', $key);
+
+          if ($options) {
+            list($width, $height) = explode("x", $options);
+
+            if (isset($stackConfig['variables']['defaultWidth'])) {
+              $stackConfig['variables']['defaultWidth'] = $width;
+            }
+            if (isset($stackConfig['variables']['defaultHeight'])) {
+              $stackConfig['variables']['defaultHeight'] = $height;
+            }
+            if (isset($stackConfig['resize']['variables']['width'])) {
+              $stackConfig['crop']['variables']['width'] = $width;
+            }
+            if (isset($stackConfig['resize']['variables']['height'])) {
+              $stackConfig['crop']['variables']['height'] = $height;
+            }
+          }
           break;
         case "noop":
         case "raw":
-          $operations = [];
           break;
         case "resize":
+          $stackConfig = self::getStackConfiguration('resize', $key);
           if ($options) {
             list($width, $height) = explode("x", $options);
-            $resize = new \Rokka\Client\Core\StackOperation('resize', array_merge(['height' => $height, 'width' => $width], $stacksoptions[$key]['resize']));
-          } else {
-            $resize = new \Rokka\Client\Core\StackOperation('resize', array_merge(['width' => 9999], $stacksoptions[$key]['resize']));
+            if (isset($stackConfig['variables']['defaultWidth'])) {
+              $stackConfig['variables']['defaultWidth'] = $width;
+            }
+            if (isset($stackConfig['variables']['defaultHeight'])) {
+              if ($height > 9999) {
+                $height = 0;
+              }
+              $stackConfig['variables']['defaultHeight'] = $height;
+            }
+
+            if (isset($stackConfig['resize']['variables']['width'])) {
+              $stackConfig['resize']['variables']['width'] = $width;
+            }
+            if (isset($stackConfig['resize']['variables']['height'])) {
+              $stackConfig['resize']['variables']['height'] = $height;
+            }
           }
-          $operations = [$resize];
           break;
         default;
           print "Nothing done, no rules for $key";
           continue 2;
       }
+
+      $operations = [];
+      if (isset($stackConfig['operations'])) {
+        foreach ($stackConfig['operations'] as $operationName => $opValues) {
+          $op = new \Rokka\Client\Core\StackOperation($operationName, $opValues['options'] ?? [], $opValues['expressions'] ?? []);
+          $operations[] = $op;
+        }
+      }
+
       if ($name == "raw") {
-        $stackoptions = ['source_file' => true];
-      } else {
-        $stackoptions = ['autoformat' => true, 'jpg.transparency.autoformat' => 'true'];
+        $stackConfig['options'] = ['source_file' => true];
       }
+
       if (isset($stacksoptions[$key]['options'])) {
-        $stackoptions = array_merge($stackoptions, $stacksoptions[$key]['options']);
+        $stackConfig['options']  = array_merge($stackConfig['options'] , $stacksoptions[$key]['options']);
       }
+
+
+
       $startTime = (new \DateTime())->sub(new \DateInterval("PT1S"));
       try {
         $stack = new \Rokka\Client\Core\Stack('', $rokkaStackName);
         $stack->setStackOperations($operations);
-        $stack->setStackOptions($stackoptions);
+        if (isset($stackConfig['options'])) {
+          $stack->setStackOptions($stackConfig['options']);
+        }
+        if (isset($stackConfig['variables'])) {
+          $stack->setStackVariables($stackConfig['variables']);
+        }
+        print(json_encode($stack->getConfig()));
+        print "\n";
+
+        if (isset($stackConfig['expressions'])) {
+          foreach($stackConfig['expressions'] as $expression ) {
+            $expr = new \Rokka\Client\Core\StackExpression($expression['expression'], $expression['overrides']['options']);
+            $stack->addStackExpression($expr);
+          }
+        }
         if (isset($stacksoptions[$key]['options-retina'])) {
           $expr = new \Rokka\Client\Core\StackExpression("options.dpr > 1.5", $stacksoptions[$key]['options-retina']);
-          $stack->setStackExpressions([$expr]);
+          $stack->addStackExpression($expr);
         }
         $resp = $imageClient->saveStack($stack, ['overwrite' => true]);
       } catch (GuzzleException $e) {
+        print "<h2>ERROR!</h2>";
         var_dump($e->getResponse()->getBody()->getContents());
         die;
       }
@@ -227,6 +380,8 @@ class Rokka
       print json_encode($resp->getStackOptions());
       print '<p>Expressions: ';
       print json_encode($resp->getStackExpressions());
+      print '<p>Variables: ';
+      print json_encode($resp->getStackVariables());
       print '</p>';
       print '<p>';
       if ($startTime <= $resp->getCreated()) {
@@ -274,5 +429,25 @@ class Rokka
   public static function getOriginalImageTag(): array
   {
     return Kirby\Text\KirbyTag::$types['image'];
+  }
+
+  private static function getStackConfiguration(string $operation, string $key): array
+  {
+    $stacksoptions = option('rokka.kirby.stacks.options');
+    $stacks = option('rokka.kirby.stacks');
+    if(!isset($stacks[$key])) {
+      return [];
+    }
+    $options = $stacksoptions[$stacks[$key]] ?? [];
+    switch ($operation) {
+      case 'crop':
+        $options['operations']['crop'] = $options['operations']['crop'] ?? [];
+        return array_replace_recursive(self::DEFAULT_CROP_STACK, $options);
+      case 'resize':
+        $options['operations']['resize'] = $options['operations']['resize'] ?? [];
+        return array_replace_recursive(self::DEFAULT_RESIZE_STACK, $options);
+    }
+
+    return self::DEFAULT_BASE_STACK;
   }
 }

@@ -8,7 +8,7 @@ Free account plans are available. Just install the plugin, register and use it.
 
 ## WARNING
 
-This is still alpha software. We  use this for our [Liip](https://liip.ch/) company webpage, so it's somehow battle tested. 
+This is still beta software. We  use this for our [Liip](https://liip.ch/) company webpage, so it's somehow battle tested. 
 But there's still room for improvements and some behind the scene code will change, the kirby API will stay stable, hopefully.
 And input is always welcome.
 
@@ -54,17 +54,21 @@ c::set('rokka.kirby.organization', 'YOUR_ORG_NAME_HERE');
 c::set('rokka.kirby.apikey', 'YOUR_API_KEY_HERE');
 ```
 
-The following is also recommended (see below in "Defining Stacks"):
+The following is also recommended for shorter, nicer image URLS (see below in "Defining Stacks"):
 
 ```
 c::set('rokka.kirby.stacks', [
-    'noop' => 'www_noop',
-    'resize' => 'www_resize',
-    'raw' => 'www_raw',
-    'kirbytext' => 'www_kirbytext', // default stack for kirbytext image includes
-    'resize-800x10000' => 'www_kirbytext' //images in kirbytext will have a width of 800px
+    'noop' => 'kirby_noop',
+    'resize' => 'kirby_resize',
+    'crop' => 'kirby_crop'
+    'raw' => 'kirby_raw',
+    'kirbytext' => 'kirby_text', // default stack for kirbytext image includes
+    'resize-800x10000' => 'kirby_text' //images in kirbytext will have a width of 800px
 ]);
 ```
+
+After having added that, you have to call `https://yourkirbysite.com/_rokka/create-stacks` (and be logged in) to 
+create the actual stacks on the rokka server.
 
 The plugin adds a `$myFile->rokkaCropUrl($width, $height, $format = "jpg")`, `
 $myFile->rokkaResizeUrl($width, $height, $format = "jpg")` and a `$myFile->rokkaOriginalSizeUrl($format="jpg")` function to [$file objects](https://getkirby.com/docs/cheatsheet#file).
@@ -91,41 +95,47 @@ You can configure some stacks with the `rokka.kirby.stacks` configure option. If
 
 ```
 c::set('rokka.kirby.stacks', [
-    `crop-200x200' => 'www_thumbnail',
-    `resize-300x300' => 'www_resized',
-    'noop' => 'www_noop',
-    'resize' => 'www_resize',
-    'raw' => 'www_raw',
-
+    `crop-200x200' => 'kirby_thumbnail',
+    `resize-300x300' => 'kirby_resized',
+    'noop' => 'kirby_noop',
+    'resize' => 'kirby_resize',
+    'crop' => 'kirby_crop',
+    'raw' => 'kirby_raw',
+]);
 ```
 
-The value of the array (in this example www_thumbnail) can be an ascii text, you can use there whatever you want.
+The value of the array (in this example www_thumbnail) is the used stack name. It can be an ascii text, you can use there whatever you want.
 
-The `noop`, `resize` and `raw` keys have a special meaning and you should define them like in the example above, 
+The `noop`, `crop` and `resize` and `raw` keys have a special meaning and you should define them like in the example above, 
 but you can change the name of the actual stacks
 
-
-After you defined your stacks, open the URL https://yourkirbysite.com/_rokka/create-stacks, after you logged in into the Panel.
-This will create your stacks on the Rokka server. A panel option for this will come one day.
+After you defined your stacks, open the URL `https://yourkirbysite.com/_rokka/create-stacks`, after you logged in into the Panel.
+This will create your stacks on the Rokka server. A panel option for this will come one day. You only have to do this
+once, but whenever you change some of the stack definitions.
 
 You can also set stack options for those stacks with eg.
 
 ```
 c::set('rokka.kirby.stacks.options', [
-    'resize-300x300' => ['options' => [webp.quality' => 80]], 
-    'crop-200x200' => ['options' => [jpg.quality' => 85]], 
-    'resize-800x10000' => [['resize' => ['upscale' => false, 'options' => [webp.quality' => 80]] // don't upscale picture, if they're smaller than the width 
+    'resize-300x300' => ['options' => ['webp.quality' => 80]],
+    'crop-200x200' => ['options' => ['jpg.quality' => 85]],
+    'resize-800x10000' => [
+        'operations' => ['resize' => ['options' => ['upscale' => false]]], // don't upscale picture, if they're smaller than the width 
+        'options' => ['webp.quality' => 80]
+    ],
 ]);
 ```
 
 And if you want different settings for retina screens you can add an 'options-retina' key
+
 ```
 c::set('rokka.kirby.stacks.options', [
-    'resize-300x300' => ['options' => [webp.quality' => 80], 'options-retina' => [webp.quality' => 60]], 
+    'resize-300x300' => [
+        'options' => ['webp.quality' => 80], 
+        'options-retina' => ['webp.quality' => 60]
+    ],
 ]);
 ```
-
-
 
 All available Stack options can be found on the [rokka documentation](https://rokka.io/documentation/references/stacks.html).
 

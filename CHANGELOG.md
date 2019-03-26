@@ -2,6 +2,8 @@
 
 - Thumb methods (crop(), resize(), blur() and bw()) use now rokka as well
 - Adjusted for Kirby 3. Doesn't work for kirby 2 anymore, use the "kirby-2" branch, if you need this.
+- Uses Stack Variables for shorter URLs. It's recommended to run `https://yourkirbysite.com/_rokka/create-stacks` to 
+  update your stacks.
 
 ## 0.0.5 - 2018-08-14
 
