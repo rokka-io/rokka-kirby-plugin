@@ -438,7 +438,7 @@ class Rokka
     if(!isset($stacks[$key])) {
       return [];
     }
-    $options = $stacksoptions[$stacks[$key]] ?? [];
+    $options = $stacksoptions[$key] ?? [];
     switch ($operation) {
       case 'crop':
         $options['operations']['crop'] = $options['operations']['crop'] ?? [];
