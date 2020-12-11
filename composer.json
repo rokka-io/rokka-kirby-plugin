@@ -11,7 +11,7 @@
     }
   ],
   "require": {
-    "rokka/client": "^1.10"
+    "rokka/client": "^1.14.0"
   },
   "autoload": {
     "psr-4": {

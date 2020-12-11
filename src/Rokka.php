@@ -187,6 +187,15 @@ class Rokka
     return self::getRokkaInstance()->generateRokkaUrl($hash, $stack, $format, self::getRokkaInstance()->getImagename($rokkaImageObject));
   }
 
+  public static function generateRokkaUrl(File $file, $stack, $format = 'jpg') {
+
+    $rokkaImageObject = self::getRokkaImageObject($file);
+    if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
+        return $file->url();
+    }
+    return self::getRokkaInstance()->generateRokkaUrl($hash, $stack, $format, self::getRokkaInstance()->getImagename($rokkaImageObject));
+  }
+
   public static function getOriginalSizeUrl(File $file, $format = 'jpg')
   {
     //FIXME: check for noop stack

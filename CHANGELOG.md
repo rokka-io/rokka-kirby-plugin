@@ -1,3 +1,7 @@
+## 0.2.0 
+
+- Added Rokka::generateRokkaUrl($file, $stack, $format) method.
+
 ## 0.1.0 - 2020-01-01
 
 - Thumb methods (crop(), resize(), blur() and bw()) use now rokka as well
