@@ -1,4 +1,4 @@
-## 0.2.0 
+## 0.2.0 - 2020-12-11 
 
 - Added Rokka::generateRokkaUrl($file, $stack, $format) method.
 
