@@ -1,3 +1,7 @@
+## 0.3.0 - 2022-01-26
+
+- Use .gif as format, if source image is a gif.
+
 ## 0.2.0 - 2020-12-11 
 
 - Added Rokka::generateRokkaUrl($file, $stack, $format) method.

@@ -145,8 +145,13 @@ class Rokka
       $width = 10000;
     }
     if ($format === null) {
-      $format = 'jpg';
+      if ($file->mime() === 'image/gif') {
+        $format = 'gif';
+      } else {
+        $format = 'jpg';
+      }
     }
+
     $rokkaImageObject = self::getRokkaImageObject($file);
     if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
       return $file->$operation($width, $height)->url();
@@ -196,7 +201,7 @@ class Rokka
     return self::getRokkaInstance()->generateRokkaUrl($hash, $stack, $format, self::getRokkaInstance()->getImagename($rokkaImageObject));
   }
 
-  public static function getOriginalSizeUrl(File $file, $format = 'jpg')
+  public static function getOriginalSizeUrl(File $file, $format = null)
   {
     //FIXME: check for noop stack
     if (!option('rokka.kirby.enabled')) {
@@ -207,6 +212,14 @@ class Rokka
 
     if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
       return $file->url();
+    }
+
+    if ($format === null) {
+      if ($file->mime() === 'image/gif') {
+        $format = 'gif';
+      } else {
+        $format = 'jpg';
+      }
     }
 
     return self::$rokka->generateRokkaUrl(

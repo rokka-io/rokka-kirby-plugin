@@ -26,13 +26,13 @@ Kirby::plugin(
       ];
     },
     'fileMethods' => [
-      'rokkaCropUrl' => function ($width, $height = 10000, $format = 'jpg') {
+      'rokkaCropUrl' => function ($width, $height = 10000, $format = null) {
         return Rokka::getCropUrl($this, $width, $height, $format);
       },
-      'rokkaResizeUrl' => function ($width, $height = 10000, $format = 'jpg') {
+      'rokkaResizeUrl' => function ($width, $height = 10000, $format = null) {
         return Rokka::getResizeUrl($this, $width, $height, $format);
       },
-      'rokkaOriginalSizeUrl' => function ($format = 'jpg') {
+      'rokkaOriginalSizeUrl' => function ($format = null) {
         return Rokka::getOriginalSizeUrl($this, $format);
       },
       'rokkaGetHash' => function () {
