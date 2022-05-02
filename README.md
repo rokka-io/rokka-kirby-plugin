@@ -15,7 +15,7 @@ And input is always welcome.
 ## Requirements
 
 - [PHP 7.1](https://php.net) 
-- [**Kirby**](https://getkirby.com/) 3.0+ 
+- [**Kirby**](https://getkirby.com/) 3.6+ 
 - [Rokka API key](https://rokka.io/en/signup/) (free plan available).
 - [Rokka PHP Client](https://github.com/rokka-io/rokka-client-php) 1.1+. Installed via composer, see below.
 
@@ -27,7 +27,7 @@ And input is always welcome.
 The recommended way
 
 ```
-composer require rokka/kirby:"dev-master as 0.1.0-dev"
+composer require rokka/kirby
 ```
 
 

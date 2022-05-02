@@ -3,7 +3,7 @@
 use Kirby\Cms\App;
 use Kirby\Cms\File;
 use Kirby\Cms\FileVersion;
-use Kirby\Cms\KirbyTag;
+use Kirby\Text\KirbyTag;
 
 
 Kirby::plugin(

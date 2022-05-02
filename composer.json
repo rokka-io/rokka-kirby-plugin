@@ -11,7 +11,8 @@
     }
   ],
   "require": {
-    "rokka/client": "^1.14.0"
+    "rokka/client": "^1.14.0",
+    "getkirby/cms": "^3.6"
   },
   "autoload": {
     "psr-4": {
@@ -21,7 +22,10 @@
     "files": ["config.php"]
   },
   "config": {
-    "optimize-autoloader": true
+    "optimize-autoloader": true,
+    "allow-plugins": {
+      "getkirby/composer-installer": true
+    }
   },
   "extra": {
     "installer-name": "rokka"

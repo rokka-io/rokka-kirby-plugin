@@ -3,7 +3,7 @@
 
 use GuzzleHttp\Exception\GuzzleException;
 use Kirby\Cms\File;
-use Kirby\Cms\KirbyTag;
+use Kirby\Text\KirbyTag;
 use Rokka\Client\LocalImage\FileInfo;
 use Rokka\Client\TemplateHelper;
 

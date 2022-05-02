@@ -1,3 +1,7 @@
+## 0.4.0 - 2022-04-02
+
+- Support Kirby 3.6+ (but not older versions anymore, but you can still use 0.3.0 for that)
+
 ## 0.3.0 - 2022-01-26
 
 - Use .gif as format, if source image is a gif.
