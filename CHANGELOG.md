@@ -1,3 +1,7 @@
+## 0.4.1 - 2023-07-03
+
+- Fix deprecation warning.
+
 ## 0.4.0 - 2022-04-02
 
 - Support Kirby 3.6+ (but not older versions anymore, but you can still use 0.3.0 for that)
