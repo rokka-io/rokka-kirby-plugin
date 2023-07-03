@@ -120,7 +120,7 @@ Kirby::plugin(
           // regex taken from \Kirby\Text\KirbyTags::parse
           return preg_replace_callback('!(?=[^\]])\(image:(.*?\))!is', function ($match) {
             return '(imageRokka:' . $match[1];
-          }, $text);
+          }, $text ?? '');
         }
         return $text;
       },
