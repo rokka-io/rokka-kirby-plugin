@@ -161,8 +161,8 @@ class Rokka
     if ($extension == 'svg') {
       $format = $extension;
     }
-    if (isset($stacks["${operation}-${width}x${height}"])) {
-      $stack = $stacks["${operation}-${width}x${height}"];
+    if (isset($stacks["{$operation}-{$width}x{$height}"])) {
+      $stack = $stacks["{$operation}-{$width}x{$height}"];
     } else {
       // check if we have a stack configuration for this variable with w setting, then we can use the shorter URLs.
       $config = self::getStackConfiguration($operation, $operation);
