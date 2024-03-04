@@ -127,7 +127,7 @@ Kirby::plugin(
     ],
     'components' => [
       'file::version' => function (App $kirby, File $file, array $options) {
-        if (!Rokka::isEnabled()) {
+        if (!Rokka::isEnabled() || !$file->rokkaGetHash()) {
           // fallback to the default one
           $components = include $kirby->root('kirby') . '/config/components.php';
           return $components['file::version']($kirby, $file, $options);
