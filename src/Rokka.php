@@ -276,21 +276,21 @@ class Rokka
     $stacks = option('rokka.kirby.stacks');
     $stacksoptions = option('rokka.kirby.stacks.options');
     $imageClient = self::getRokkaClient();
-    print '<h1>Create stacks on rokka</h1>';
-    print '<h2>For organisation: ' . option('rokka.kirby.organization') . '</h2>';
+    $response = '<h1>Create stacks on rokka</h1>';
+    $response .= '<h2>For organisation: ' . option('rokka.kirby.organization') . '</h2>';
     foreach ($stacks as $key => $rokkaStackName) {
       @list($name, $options) = explode("-", $key, 2);
-      print '<h2>Create stack named: ' . $rokkaStackName . '</h2>';
+      $response .= '<h2>Create stack named: ' . $rokkaStackName . '</h2>';
       if (!isset($stacksoptions[$key]['operations']['resize'])) {
         $stacksoptions[$key]['operations']['resize'] = [];
       }
       if (isset($stacksoptions[$key]['resize'])) {
-        print "<h3>ERROR, please change config for '$key'</h3>";
-        print "<p> The config for individual resize options in rokka.stack.options changed, please move the 'resize' key to 'operations' => 'resize' => 'options'</p>";
+        $response .= "<h3>ERROR, please change config for '$key'</h3>";
+        $response .= "<p> The config for individual resize options in rokka.stack.options changed, please move the 'resize' key to 'operations' => 'resize' => 'options'</p>";
         $newOptions = $stacksoptions[$key];
         unset($newOptions['resize']);
         $newOptions['operations']['resize']['options'] = $stacksoptions[$key]['resize'];
-        print "<pre>'". $key ."' => ".var_export($newOptions,true) ."</pre>";
+        $response .= "<pre>'". $key ."' => ".var_export($newOptions,true) ."</pre>";
         die;
 
       }
@@ -343,7 +343,7 @@ class Rokka
           }
           break;
         default;
-          print "Nothing done, no rules for $key";
+          $response .= "Nothing done, no rules for $key";
           continue 2;
       }
 
@@ -375,8 +375,8 @@ class Rokka
         if (isset($stackConfig['variables'])) {
           $stack->setStackVariables($stackConfig['variables']);
         }
-        print(json_encode($stack->getConfig()));
-        print "\n";
+        $response .= json_encode($stack->getConfig());
+        $response .= "\n";
 
         if (isset($stackConfig['expressions'])) {
           foreach($stackConfig['expressions'] as $expression ) {
@@ -390,30 +390,31 @@ class Rokka
         }
         $resp = $imageClient->saveStack($stack, ['overwrite' => true]);
       } catch (GuzzleException $e) {
-        print "<h2>ERROR!</h2>";
+        $response .= "<h2>ERROR!</h2>";
         var_dump($e->getResponse()->getBody()->getContents());
         die;
       }
-      print '<p>Done</p>';
-      print '<p>Operations: ';
-      print json_encode($resp->getStackOperations());
-      print '</p>';
-      print '<p>Options: ';
-      print json_encode($resp->getStackOptions());
-      print '<p>Expressions: ';
-      print json_encode($resp->getStackExpressions());
-      print '<p>Variables: ';
-      print json_encode($resp->getStackVariables());
-      print '</p>';
-      print '<p>';
+      $response .= '<p>Done</p>';
+      $response .= '<p>Operations: ';
+      $response .= json_encode($resp->getStackOperations());
+      $response .= '</p>';
+      $response .= '<p>Options: ';
+      $response .= json_encode($resp->getStackOptions());
+      $response .= '<p>Expressions: ';
+      $response .= json_encode($resp->getStackExpressions());
+      $response .= '<p>Variables: ';
+      $response .= json_encode($resp->getStackVariables());
+      $response .= '</p>';
+      $response .= '<p>';
       if ($startTime <= $resp->getCreated()) {
-        print "Stack was updated.";
+        $response .= "Stack was updated.";
       } else {
-        print "Stack didn't change.";
+        $response .= "Stack didn't change.";
       }
-      print '</p>';
+      $response .= '</p>';
     }
-    return '<p>finished</p>';
+    $response .= '<p>finished</p>';
+    return $response;
   }
 
   /**
