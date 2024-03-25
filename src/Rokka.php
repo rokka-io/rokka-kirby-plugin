@@ -129,6 +129,8 @@ class Rokka
     }
 
     $tag->value = self::getRokkaInstance()->getStackUrl($rokkaImageObject, $stack, $extension);
+    $tag->srcset = self::getRokkaInstance()->getSrcSetUrl($tag->value, ['2x'], true);
+
     return self::getOriginalImageTag()['html']($tag);
   }
 
