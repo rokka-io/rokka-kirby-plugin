@@ -20,16 +20,21 @@ class RokkaCallbacks extends AbstractCallbacks
 
   public function saveHash(AbstractLocalImage $file, SourceImage $sourceImage)
   {
+    $hash = $sourceImage->shortHash;
+    $model = $file->getContext();
+    Rokka::rememberHash($model, $hash);
+
+    // Update the latest instance: in Kirby 5, updating an older one deletes its content file
+    $latest = $model->parent()->file($model->filename()) ?? $model;
     try {
       kirby()->impersonate('kirby');
-      $file->getContext()->update([Rokka::getRokkaHashKey() => $sourceImage->shortHash], Rokka::DEFAULT_TXT_LANG);
-      kirby()->impersonate(null);
+      $latest->update([Rokka::getRokkaHashKey() => $hash], Rokka::DEFAULT_TXT_LANG);
     } catch (LogicException|PermissionException $e) {
       // happens when for example an image can't be updated
-      // just return the shortHash
-      return $sourceImage->shortHash;
+    } finally {
+      kirby()->impersonate(null);
     }
-    return $sourceImage->shortHash;
+    return $hash;
   }
 
   public function getMetadata(AbstractLocalImage $image): array

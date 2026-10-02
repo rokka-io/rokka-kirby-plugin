@@ -89,7 +89,13 @@ class Rokka
    */
   public static $rokka = null;
 
-  public static function panelUpload(Kirby\Panel\Models\File $file)
+  /**
+   * Hashes saved during this request, by file id.
+   * Kirby 5 doesn't update older instances of a model after a save.
+   */
+  private static $savedHashes = [];
+
+  public static function panelUpload(File $file)
   {
     $file->update([self::getRokkaHashKey() => ""]);
   }
@@ -112,10 +118,10 @@ class Rokka
   }
 
   public static function getImgTag(
-    File $file = null,
-    string $stack = null,
-    string $extension = null,
-    KirbyTag $tag = null
+    ?File $file = null,
+    ?string $stack = null,
+    ?string $extension = null,
+    ?KirbyTag $tag = null
   )
   {
     $rokkaImageObject = self::getRokkaImageObject($file);
@@ -234,8 +240,16 @@ class Rokka
 
   public static function getRokkaHash(File $file): ?string
   {
+    if (isset(self::$savedHashes[$file->id()])) {
+      return self::$savedHashes[$file->id()];
+    }
     $var = self::getRokkaHashKey();
     return $file->$var()->value();
+  }
+
+  public static function rememberHash(File $file, string $hash): void
+  {
+    self::$savedHashes[$file->id()] = $hash;
   }
 
   public static function getRokkaHashKey()
@@ -344,7 +358,7 @@ class Rokka
             }
           }
           break;
-        default;
+        default:
           $response .= "Nothing done, no rules for $key";
           continue 2;
       }
