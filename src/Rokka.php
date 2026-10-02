@@ -124,6 +124,9 @@ class Rokka
     ?KirbyTag $tag = null
   )
   {
+    if ($tag === null) {
+      $tag = new KirbyTag('image', $file->filename(), [], ['parent' => $file->parent()]);
+    }
     $rokkaImageObject = self::getRokkaImageObject($file);
     try {
       if (!$hash = self::getRokkaInstance()->getHashMaybeUpload($rokkaImageObject)) {
