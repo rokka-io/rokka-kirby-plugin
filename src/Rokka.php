@@ -89,7 +89,7 @@ class Rokka
    */
   public static $rokka = null;
 
-  public static function panelUpload(Kirby\Panel\Models\File $file)
+  public static function panelUpload(File $file)
   {
     $file->update([self::getRokkaHashKey() => ""]);
   }
@@ -112,10 +112,10 @@ class Rokka
   }
 
   public static function getImgTag(
-    File $file = null,
-    string $stack = null,
-    string $extension = null,
-    KirbyTag $tag = null
+    ?File $file = null,
+    ?string $stack = null,
+    ?string $extension = null,
+    ?KirbyTag $tag = null
   )
   {
     $rokkaImageObject = self::getRokkaImageObject($file);
@@ -344,7 +344,7 @@ class Rokka
             }
           }
           break;
-        default;
+        default:
           $response .= "Nothing done, no rules for $key";
           continue 2;
       }
