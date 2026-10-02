@@ -89,6 +89,12 @@ class Rokka
    */
   public static $rokka = null;
 
+  /**
+   * Hashes saved during this request, by file id.
+   * Kirby 5 doesn't update older instances of a model after a save.
+   */
+  private static $savedHashes = [];
+
   public static function panelUpload(File $file)
   {
     $file->update([self::getRokkaHashKey() => ""]);
@@ -234,8 +240,16 @@ class Rokka
 
   public static function getRokkaHash(File $file): ?string
   {
+    if (isset(self::$savedHashes[$file->id()])) {
+      return self::$savedHashes[$file->id()];
+    }
     $var = self::getRokkaHashKey();
     return $file->$var()->value();
+  }
+
+  public static function rememberHash(File $file, string $hash): void
+  {
+    self::$savedHashes[$file->id()] = $hash;
   }
 
   public static function getRokkaHashKey()
